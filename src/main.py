@@ -1,5 +1,36 @@
 from spotify import *
+from providers.spotify_oembed import *
+
 
 user_text = input("Paste Spotify link: ")
 
-print(f"Link Type: {detect_input_type(user_text)}, URL: {clean_spotify_link(user_text)}")
+def main(spotify_link):
+    input_type = detect_input_type(spotify_link)
+    cleaned_url = clean_spotify_link(spotify_link)
+    spotify_id = extract_spotify_id(spotify_link)
+    metadata = None
+
+    print(input_type, cleaned_url, spotify_id)
+
+    if cleaned_url is None:
+        print("Invalid link")
+        return None
+
+    elif input_type != "track":
+        print("Only track type is supported right now")
+        return None
+
+    else:
+        metadata = fetch_spotify_oembed(cleaned_url)
+
+    if metadata is not None:
+        print(metadata)
+
+    else:
+        print("Failed to fetch metadata")
+
+main(user_text)
+
+
+
+

@@ -41,3 +41,23 @@ def detect_spotify_link(link):
         return None
 
     return detect_input_type(link), cleaned_url
+
+def extract_spotify_id(link):
+
+    cleaned_url = clean_spotify_link(link)
+    match = None
+
+    if cleaned_url is None:
+        return None
+
+    if "https://open.spotify.com/" in cleaned_url:
+        match = re.search(rf"https://open\.spotify\.com/{detect_input_type(cleaned_url)}/([^/?\s]+)", cleaned_url, re.IGNORECASE)
+    elif "spotify:" in cleaned_url:
+        match = re.search(rf"spotify:{detect_input_type(cleaned_url)}:([^\s)}}.,;:]+)", cleaned_url, re.IGNORECASE)
+
+    if match is None:
+        return None
+
+    spotify_id = match.group(1)
+
+    return spotify_id

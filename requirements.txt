@@ -3,3 +3,4 @@ yt-dlp
 mutagen
 Pillow
 customtkinter
+spotifyscraper==3.5.0
