@@ -1,6 +1,5 @@
 import re
 
-# INPUT_TYPE = None
 
 def detect_input_type(link):
 
@@ -31,16 +30,6 @@ def clean_spotify_link(link):
 
     link = match.group(0)
     return link.strip().replace("\u200b", "").rstrip(")}.,;:").strip()
-
-def detect_spotify_link(link):
-    detect_input_type(link)
-    if detect_input_type(link) is None:
-        return None
-    cleaned_url = clean_spotify_link(link)
-    if cleaned_url is None:
-        return None
-
-    return detect_input_type(link), cleaned_url
 
 def extract_spotify_id(link):
 

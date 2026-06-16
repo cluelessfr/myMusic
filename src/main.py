@@ -1,5 +1,5 @@
-from spotify import *
-from providers.spotify_oembed import *
+from src.spotify_link_cleaner import *
+from src.metadata_providers.spotify_oembed_fallback import *
 
 
 user_text = input("Paste Spotify link: ")
@@ -8,7 +8,6 @@ def main(spotify_link):
     input_type = detect_input_type(spotify_link)
     cleaned_url = clean_spotify_link(spotify_link)
     spotify_id = extract_spotify_id(spotify_link)
-    metadata = None
 
     print(input_type, cleaned_url, spotify_id)
 
@@ -25,9 +24,12 @@ def main(spotify_link):
 
     if metadata is not None:
         print(metadata)
+        return None
 
     else:
         print("Failed to fetch metadata")
+        return None
+
 
 main(user_text)
 
