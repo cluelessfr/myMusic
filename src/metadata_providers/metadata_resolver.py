@@ -1,6 +1,6 @@
 # from src.metadata_providers.spotify_oembed_fallback import *
 from src.metadata_providers.spotify_scraper_main import scrape_spotify_metadata
-from src.spotify_link_cleaner import detect_input_type, clean_spotify_link, extract_spotify_id
+from src.Spotify.spotify_link_cleaner import detect_input_type, clean_spotify_link, extract_spotify_id
 
 
 def validate_link_get_metadata(link):

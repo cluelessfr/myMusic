@@ -1,4 +1,4 @@
-from src.metadata_resolver import validate_link_get_metadata
+from src.metadata_providers.metadata_resolver import validate_link_get_metadata
 from src.youtube.youtube_music_search_main import get_youtube_music_candidates
 from src.youtube.best_match_downloader import download_audio
 
