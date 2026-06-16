@@ -1,12 +1,12 @@
 # myMusic
 
-myMusic is an early rebuild of a music utility for turning Spotify track links into offline music files.
+myMusic is an early build of a music utility for turning Spotify track links into offline music files.
 
 The long-term goal is to let a user paste a Spotify link, resolve the correct track metadata, find the matching audio source, download it, tag it, and save it as a local file for offline listening.
 
 ## Current Status
 
-This project is still in the early rebuild stage. The current code focuses on the first part of the pipeline: accepting Spotify links, cleaning them, identifying the Spotify item type, and resolving track metadata.
+This project is still in the early build stage. The current code focuses on the first part of the pipeline: accepting Spotify links, cleaning them, identifying the Spotify item type, and resolving track metadata.
 
 Working today:
 
