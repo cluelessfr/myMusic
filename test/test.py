@@ -1,4 +1,4 @@
-from src.metadata_resolver import *
+from src.metadata_resolver import validate_link_get_metadata
 
 valid_track = "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
 invalid_input = "not spotify"

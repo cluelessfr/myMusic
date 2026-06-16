@@ -1,38 +1,22 @@
-from src.spotify_link_cleaner import *
-from src.metadata_providers.spotify_oembed_fallback import *
+from src.metadata_resolver import validate_link_get_metadata
 
-
-user_text = input("Paste Spotify link: ")
 
 def main(spotify_link):
-    input_type = detect_input_type(spotify_link)
-    cleaned_url = clean_spotify_link(spotify_link)
-    spotify_id = extract_spotify_id(spotify_link)
+    result = validate_link_get_metadata(spotify_link)
 
-    print(input_type, cleaned_url, spotify_id)
+    if not result["ok"]:
+        print(result["error"])
+        return
 
-    if cleaned_url is None:
-        print("Invalid link")
-        return None
+    metadata = result["metadata"]
 
-    elif input_type != "track":
-        print("Only track type is supported right now")
-        return None
-
-    else:
-        metadata = fetch_spotify_oembed(cleaned_url)
-
-    if metadata is not None:
-        print(metadata)
-        return None
-
-    else:
-        print("Failed to fetch metadata")
-        return None
+    print("Track Found: ")
+    print("Title:      ", metadata["title"])
+    print("Artist(s):  ", ", ".join(metadata["artists"]))
+    print("Album:      ", metadata["album"])
+    print("Spotify ID: ", metadata["spotify_id"])
 
 
-main(user_text)
-
-
-
-
+if __name__ == "__main__":
+    user_text = input("Paste Spotify link: ")
+    main(user_text)
