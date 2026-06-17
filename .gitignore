@@ -18,6 +18,7 @@ __pycache__/
 data/downloads/
 dist/
 build/
+myMusic.spec
 
 # Local bundled binaries
 tools/ffmpeg/
