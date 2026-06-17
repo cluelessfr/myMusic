@@ -50,7 +50,7 @@ def preview():
 def start_preview():
     threading.Thread(target=preview).start()
 
-preview_button = ctk.CTkButton(app, text="Preview Metadata", command=start_preview)
+preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
 
 def run_download():
     download_button.configure(state="disabled")
