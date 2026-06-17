@@ -30,9 +30,8 @@ def main(spotify_link):
         return
 
     best_candidate = top_5_results[0]
-
-    print("\nDownloading:")
-    download_audio(best_candidate)
+    downloaded_path = download_audio(best_candidate, metadata)
+    print(f"Downloaded to: {downloaded_path}")
 
 
 if __name__ == "__main__":

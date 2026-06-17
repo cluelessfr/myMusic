@@ -17,3 +17,6 @@ __pycache__/
 data/downloads/
 dist/
 build/
+
+# Local bundled binaries
+tools/ffmpeg/
