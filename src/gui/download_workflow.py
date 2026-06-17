@@ -35,3 +35,30 @@ def download_song_from_spotify_link(spotify_link):
         "candidate": best_candidate,
         "downloaded_path": downloaded_path,
     }
+
+def preview_metadata(link):
+    result = validate_link_get_metadata(link)
+
+    if not result["ok"]:
+        return {
+            "ok": result["ok"],
+            "error": result["error"],
+            "title": None,
+            "artists": None,
+            "album": None,
+            "artwork_url": None,
+        }
+
+    title = result["metadata"]["title"]
+    artists = result["metadata"]["artists"]
+    album = result["metadata"]["album"]
+    artwork_url = result["metadata"]["artwork_url"]
+
+    return {
+        "ok": result["ok"],
+        "error": result["error"],
+        "title": title,
+        "artists": artists,
+        "album": album,
+        "artwork_url": artwork_url,
+    }

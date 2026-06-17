@@ -11,6 +11,7 @@
 Thumbs.db
 
 .venv/
+myMusic-venv/
 __pycache__/
 *.pyc
 *.log
