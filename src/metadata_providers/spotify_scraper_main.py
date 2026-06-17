@@ -1,5 +1,5 @@
 import spotify_scraper as scraper
-from src.Spotify.spotify_link_cleaner import detect_input_type
+from src.spotify.spotify_link_cleaner import detect_input_type
 
 def scrape_spotify_metadata(cleaned_link):
 

@@ -1,6 +1,7 @@
 from src.metadata_providers.metadata_resolver import validate_link_get_metadata
 from src.youtube.youtube_music_search_main import get_youtube_music_candidates
 from src.youtube.best_match_downloader import download_audio
+from src.audio.metadata_tagger import add_metadata
 
 
 def main(spotify_link):
@@ -31,6 +32,8 @@ def main(spotify_link):
 
     best_candidate = top_5_results[0]
     downloaded_path = download_audio(best_candidate, metadata)
+    add_metadata(downloaded_path, metadata)
+
     print(f"Downloaded to: {downloaded_path}")
 
 
