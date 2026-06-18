@@ -1,6 +1,6 @@
 # myMusic
 
-myMusic is a Windows desktop app for downloading a Spotify track as a local MP3 file.
+myMusic is a Windows desktop app that uses a Spotify track link to find a matching song and save it as a local MP3 file.
 
 Paste a Spotify track link, click download, and myMusic saves a tagged MP3 to your computer.
 
@@ -10,7 +10,7 @@ myMusic is distributed as a Windows zip file from the GitHub Releases page.
 
 You do not need to install Python, project dependencies, FFmpeg, or developer tools. The zip includes the executable and the files the app needs to run.
 
-1. Open the myMusic release page.
+1. Open the myMusic Releases page: https://github.com/cluelessfr/myMusic/releases
 2. Download the latest Windows zip file.
 3. Right-click the zip file.
 4. Choose **Extract All**.
