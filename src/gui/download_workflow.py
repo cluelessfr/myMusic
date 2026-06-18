@@ -4,7 +4,7 @@ from src.youtube.best_match_downloader import download_audio
 from src.audio.metadata_tagger import add_metadata
 
 
-def download_song_from_spotify_link(spotify_link):
+def download_song_from_spotify_link(spotify_link, output_folder=None):
     result = validate_link_get_metadata(spotify_link)
 
     if not result["ok"]:
@@ -24,7 +24,7 @@ def download_song_from_spotify_link(spotify_link):
         }
 
     best_candidate = top_5_results[0]
-    downloaded_path = download_audio(best_candidate, metadata)
+    downloaded_path = download_audio(best_candidate, metadata, output_folder)
     add_metadata(downloaded_path, metadata)
 
     return {
