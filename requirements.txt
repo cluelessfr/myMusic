@@ -1,5 +1,5 @@
 requests
-yt-dlp
+yt-dlp[default]
 mutagen
 Pillow
 customtkinter

@@ -18,10 +18,10 @@ __pycache__/
 data/downloads/
 dist/
 build/
-myMusic.spec
 myMusic-v*-windows.zip
 myMusic-v*-windows-setup.exe
 release/
 
 # Local bundled binaries
 tools/ffmpeg/
+tools/deno/

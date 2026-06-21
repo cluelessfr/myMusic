@@ -8,7 +8,7 @@ import threading
 
 app = ctk.CTk()
 app.title("myMusic")
-app.geometry("500x420")
+app.geometry("500x540")
 
 settings_path = Path("~/AppData/Roaming/myMusic").expanduser()
 settings_json_path = settings_path / "settings.json"
@@ -60,6 +60,14 @@ choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_d
 folder_label = ctk.CTkLabel(app, text=f"Save to: {selected_output_folder}", wraplength=440)
 
 status_label = ctk.CTkLabel(app, text="")
+progress_bar = ctk.CTkProgressBar(app, orientation="horizontal", width=450, height=20, corner_radius=5)
+progress_bar.set(0)
+
+def progress_update(message, progress):
+    def update_status():
+        status_label.configure(text=message)
+        progress_bar.set(progress)
+    app.after(0, update_status)
 
 title_label = ctk.CTkLabel(app, text="")
 artist_label = ctk.CTkLabel(app, text="")
@@ -67,72 +75,91 @@ album_label = ctk.CTkLabel(app, text="")
 
 path_label = ctk.CTkLabel(app, text="")
 
-def preview():
-    preview_button.configure(state="disabled")
-    download_button.configure(state="disabled")
-
+def preview(link):
     try:
-        status_label.configure(text="")
-        path_label.configure(text="")
-        title_label.configure(text="")
-        artist_label.configure(text="")
-        album_label.configure(text="")
+        result = preview_metadata(link)
 
-        metadata = preview_metadata(link_entry.get())
+        def show_preview():
+            if not result["ok"]:
+                status_label.configure(text="Error")
+                path_label.configure(text=result["error"], wraplength=440)
+                return
 
-        if not metadata["ok"]:
-            status_label.configure(text="Error")
-            path_label.configure(text=metadata["error"], wraplength=440)
-            return
+            title_label.configure(text=f"Title: {result['title']}")
+            artist_label.configure(text=f"Artist(s): {', '.join(result['artists'])}")
+            album_label.configure(text=f"Album: {result['album']}")
 
-        title_label.configure(text=f"Title: {metadata['title']}")
-        artist_label.configure(text=f"Artist(s): {', '.join(metadata['artists'])}")
-        album_label.configure(text=f"Album: {metadata['album']}")
+        app.after(0, show_preview)
 
     except Exception as error:
-        status_label.configure(text="Error")
-        path_label.configure(text=str(error), wraplength=440)
+        error_message = str(error)
+
+        def show_error():
+            status_label.configure(text="Error")
+            path_label.configure(text=error_message, wraplength=440)
+
+        app.after(0, show_error)
 
     finally:
-        preview_button.configure(state="normal")
-        download_button.configure(state="normal")
+        def enable_buttons():
+            preview_button.configure(state="normal")
+            download_button.configure(state="normal")
+
+        app.after(0, enable_buttons)
 
 def start_preview():
-    threading.Thread(target=preview).start()
+    link = link_entry.get()
+    preview_button.configure(state="disabled")
+    download_button.configure(state="disabled")
+    status_label.configure(text="")
+    path_label.configure(text="")
+    title_label.configure(text="")
+    artist_label.configure(text="")
+    album_label.configure(text="")
+
+    threading.Thread(target=preview, args=(link,), daemon=True).start()
 
 preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
 
-def run_download():
+def run_download(link, output_folder):
+    try:
+        result = download_song_from_spotify_link(link, output_folder, progress_update)
+
+        def check_ok():
+            if not result["ok"]:
+                status_label.configure(text="Error")
+                path_label.configure(text=result["error"], wraplength=440)
+            else:
+                status_label.configure(text="Download Complete")
+                path_label.configure(text=f"Downloaded to: {result['downloaded_path']}", wraplength=440)
+
+        app.after(0, check_ok)
+
+    except Exception as error:
+        error_message = str(error)
+
+        def check_exception():
+            status_label.configure(text="Error")
+            path_label.configure(text=error_message, wraplength=440)
+        app.after(0, check_exception)
+
+    finally:
+        def enable_buttons():
+            download_button.configure(state="normal")
+            preview_button.configure(state="normal")
+            choose_folder_button.configure(state="normal")
+        app.after(0, enable_buttons)
+
+def start_download():
+    link = link_entry.get()
+    output_folder = selected_output_folder
     download_button.configure(state="disabled")
     preview_button.configure(state="disabled")
     choose_folder_button.configure(state="disabled")
+    path_label.configure(text="")
+    progress_bar.set(0)
 
-    try:
-        link = link_entry.get()
-
-        status_label.configure(text="Downloading...")
-        path_label.configure(text="")
-
-        result = download_song_from_spotify_link(link, selected_output_folder)
-
-        if not result["ok"]:
-            status_label.configure(text="Error")
-            path_label.configure(text=result["error"], wraplength=440)
-        else:
-            status_label.configure(text="Download Complete")
-            path_label.configure(text=f"Downloaded to: {result['downloaded_path']}", wraplength=440)
-
-    except Exception as error:
-        status_label.configure(text="Error")
-        path_label.configure(text=str(error), wraplength=440)
-
-    finally:
-        download_button.configure(state="normal")
-        preview_button.configure(state="normal")
-        choose_folder_button.configure(state="normal")
-
-def start_download():
-    threading.Thread(target=run_download).start()
+    threading.Thread(target=run_download, args=(link, output_folder), daemon=True).start()
 
 download_button = ctk.CTkButton(app, text="Download", command=start_download)
 
@@ -140,11 +167,12 @@ link_entry.pack(padx=20, pady=20, fill="x")
 choose_folder_button.pack(pady=5)
 folder_label.pack(pady=5)
 preview_button.pack(pady=10)
-status_label.pack(pady=10)
 title_label.pack(pady=10)
 artist_label.pack(pady=10)
 album_label.pack(pady=10)
 path_label.pack(pady=10)
 download_button.pack(pady=10)
+status_label.pack(pady=10)
+progress_bar.pack(pady=10)
 
 app.mainloop()
