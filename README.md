@@ -90,7 +90,6 @@ GitHub Release page -> download installer -> install myMusic -> run myMusic -> M
 
 - Playlist downloads.
 - Album downloads.
-- Choosing between multiple YouTube Music matches.
-- Choosing a custom download folder.
+- Manually choosing between multiple YouTube Music matches.
 - Embedded cover artwork.
-- Better progress messages while downloading.
+- A built-in workaround for occasional YouTube bot checks.
