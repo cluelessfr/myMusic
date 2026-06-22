@@ -10,7 +10,7 @@ Paste a Spotify track link, preview the song details, then download the matched 
 
 | Platform | Status | Download |
 | --- | --- | --- |
-| Windows | Supported | `myMusic-v1.0.1-windows-setup.exe` from GitHub Releases |
+| Windows | Supported | `myMusic-v1.0.2-windows-setup.exe` from GitHub Releases |
 | macOS | Not supported yet | N/A |
 | Linux | Not supported yet | N/A |
 
@@ -21,7 +21,7 @@ The recommended Windows download is the installer from the GitHub Releases page.
 You do not need to install Python, project dependencies, FFmpeg, or developer tools. The installer includes the executable and the files the app needs to run.
 
 1. Open the myMusic Releases page: https://github.com/cluelessfr/myMusic/releases
-2. Download `myMusic-v1.0.1-windows-setup.exe`.
+2. Download `myMusic-v1.0.2-windows-setup.exe`.
 3. Open the downloaded installer.
 4. Follow the setup steps.
 5. Launch myMusic from the installer, Start Menu, or desktop shortcut if you selected one.
@@ -47,7 +47,13 @@ To continue:
 3. Click **Preview Song Details**.
 4. Check that the title, artist, and album look right.
 5. Click **Download**.
-6. Open the finished MP3 from your Downloads folder.
+6. Open the finished MP3 from your selected output folder.
+
+## Known Issue: YouTube Bot Check
+
+myMusic uses YouTube Music through yt-dlp to find and download matching audio. Sometimes YouTube blocks automated requests and shows a "Sign in to confirm you're not a bot" error.
+
+This is a YouTube-side anti-bot check, not an installation problem with myMusic. If it happens, try again later or from a different network. This version does not ask for your YouTube account or browser cookies.
 
 ## Uninstall
 
