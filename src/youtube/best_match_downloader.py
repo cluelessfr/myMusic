@@ -35,12 +35,16 @@ def download_audio(candidate, metadata, output_folder=None):
     }
 
     deno_path = app_root / "tools" / "deno" / "bin" / "deno.exe"
+
     if deno_path.exists():
-        ydl_opts["js_runtimes"] = {
-            "deno": {
-                "path": str(deno_path),
+        ydl_opts["js_runtimes"] = cast(
+            Any,
+            {
+                "deno": {
+                    "path": str(deno_path),
+                },
             },
-        }
+        )
 
     with yt_dlp.YoutubeDL(cast(Any, ydl_opts)) as ydl:
         ydl.download([song_url])
