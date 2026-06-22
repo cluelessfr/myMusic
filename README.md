@@ -10,7 +10,7 @@ Paste a Spotify track link, preview the song details, then download the matched 
 
 | Platform | Status | Download |
 | --- | --- | --- |
-| Windows | Supported | `myMusic-v1.0.2-windows-setup.exe` from GitHub Releases |
+| Windows | Supported | `myMusic-v1.0.3-windows-setup.exe` from GitHub Releases |
 | macOS | Not supported yet | N/A |
 | Linux | Not supported yet | N/A |
 
@@ -21,7 +21,7 @@ The recommended Windows download is the installer from the GitHub Releases page.
 You do not need to install Python, project dependencies, FFmpeg, or developer tools. The installer includes the executable and the files the app needs to run.
 
 1. Open the myMusic Releases page: https://github.com/cluelessfr/myMusic/releases
-2. Download `myMusic-v1.0.2-windows-setup.exe`.
+2. Download `myMusic-v1.0.3-windows-setup.exe`.
 3. Open the downloaded installer.
 4. Follow the setup steps.
 5. Launch myMusic from the installer, Start Menu, or desktop shortcut if you selected one.
