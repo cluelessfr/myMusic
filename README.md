@@ -53,7 +53,7 @@ To continue:
 
 myMusic uses YouTube Music through yt-dlp to find and download matching audio. Sometimes YouTube blocks automated requests and shows a "Sign in to confirm you're not a bot" error.
 
-This is a YouTube-side anti-bot check, not an installation problem with myMusic. If it happens, try again later or from a different network. This version does not ask for your YouTube account or browser cookies.
+This is a YouTube-side anti-bot check, not an installation problem with myMusic. If it happens, myMusic shows a clearer bot-check message instead of raw technical download details. Try again later or from a different network. This version does not ask for your YouTube account or browser cookies.
 
 ## Uninstall
 
@@ -74,7 +74,7 @@ For a single Spotify track link, myMusic:
 - Downloads the selected audio.
 - Converts it to MP3.
 - Adds basic title, artist, and album tags.
-- Saves the MP3 to your Downloads folder.
+- Saves the MP3 to your selected output folder.
 
 ## Where The Processing Happens
 
