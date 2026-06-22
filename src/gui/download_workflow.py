@@ -4,6 +4,18 @@ from src.youtube.best_match_downloader import download_audio
 from src.audio.metadata_tagger import add_metadata
 
 
+def format_download_error(error_message):
+    if error_message is None:
+        return "Download failed, but no detailed error was provided."
+
+    lower_error = error_message.lower()
+
+    if "not a bot" in lower_error or "sign in to confirm" in lower_error:
+        return "YouTube blocked this download with a bot check. This is a YouTube-side limit, not an installation problem with myMusic. Try again later or from a different network."
+
+    return error_message
+
+
 def download_song_from_spotify_link(spotify_link, output_folder=None, progress_callback=None):
 
     limit = 10
@@ -54,7 +66,8 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
         return {
             "ok": False,
             "status": "no_valid_matches",
-            "error": candidate_error,
+            "error": format_download_error(candidate_error),
+            "technical_error": candidate_error,
             "metadata": metadata,
             "downloaded_path": None,
         }
