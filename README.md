@@ -2,8 +2,6 @@
 
 myMusic is a Windows desktop app that uses a Spotify track link to find a matching song and save it as a local MP3 file.
 
-![myMusic desktop app screenshot](docs/screenshots/myMusic-gui.png)
-
 Paste a Spotify track link, preview the song details, then download the matched track as an MP3.
 
 ## Platform Support
