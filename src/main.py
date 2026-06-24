@@ -1,4 +1,4 @@
-from src.gui.download_workflow import download_song_from_spotify_link
+from src.workflows.download_workflow import download_song_from_spotify_link
 
 
 def main(spotify_link):

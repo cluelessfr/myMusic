@@ -16,6 +16,37 @@ def format_download_error(error_message):
     return error_message
 
 
+def make_download_failure(status, error, metadata, technical_error=None):
+    if technical_error:
+        return {
+            "ok": False,
+            "status": status,
+            "error": error,
+            "technical_error": technical_error,
+            "metadata": metadata,
+            "downloaded_path": None,
+        }
+
+    return {
+        "ok": False,
+        "status": status,
+        "error": error,
+        "metadata": metadata,
+        "downloaded_path": None,
+    }
+
+
+def make_download_success(metadata, candidate, downloaded_path):
+    return {
+        "ok": True,
+        "status": "downloaded",
+        "error": None,
+        "metadata": metadata,
+        "candidate": candidate,
+        "downloaded_path": downloaded_path,
+    }
+
+
 def download_song_from_spotify_link(spotify_link, output_folder=None, progress_callback=None):
 
     limit = 10
@@ -34,13 +65,7 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
     candidates = get_youtube_music_candidates(metadata, limit)
 
     if not candidates:
-        return {
-            "ok": False,
-            "status": "no_youtube_results",
-            "error": "No YouTube Music candidates found",
-            "metadata": metadata,
-            "downloaded_path": None,
-        }
+        return make_download_failure(status="no_youtube_results", error="No YouTube Music candidates found", metadata=metadata)
 
     downloaded_path = None
     candidate_error = None
@@ -63,14 +88,7 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
             continue
 
     if not downloaded_path:
-        return {
-            "ok": False,
-            "status": "no_valid_matches",
-            "error": format_download_error(candidate_error),
-            "technical_error": candidate_error,
-            "metadata": metadata,
-            "downloaded_path": None,
-        }
+        return make_download_failure(status="no_valid_matches", error=format_download_error(candidate_error), metadata=metadata, technical_error=candidate_error)
 
     if progress_callback:
         progress_callback("Adding Metadata...", 0.75)
@@ -80,14 +98,8 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
     if progress_callback:
         progress_callback("Done", 1)
 
-    return {
-        "ok": True,
-        "status": "downloaded",
-        "error": None,
-        "metadata": metadata,
-        "candidate": successful_candidate,
-        "downloaded_path": downloaded_path,
-    }
+    return make_download_success(metadata=metadata, candidate=successful_candidate, downloaded_path=downloaded_path)
+
 
 def preview_metadata(link):
     result = validate_link_get_metadata(link)

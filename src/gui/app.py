@@ -1,8 +1,8 @@
 import customtkinter as ctk
-from src.gui.download_workflow import download_song_from_spotify_link, preview_metadata
-from pathlib import Path
-import json
+from src.workflows.download_workflow import download_song_from_spotify_link, preview_metadata
+from src.gui.settings import load_download_folder, save_download_folder
 from tkinter import filedialog
+from pathlib import Path
 import threading
 
 
@@ -10,31 +10,7 @@ app = ctk.CTk()
 app.title("myMusic")
 app.geometry("500x540")
 
-settings_path = Path("~/AppData/Roaming/myMusic").expanduser()
-settings_json_path = settings_path / "settings.json"
-
-settings_path.mkdir(parents=True, exist_ok=True)
-
-fallback_folder = Path.home() / "Downloads"
-
-if not settings_json_path.exists():
-    selected_output_folder = fallback_folder
-else:
-    try:
-        saved_folder = json.loads(settings_json_path.read_text()).get("download_dir")
-        if not isinstance(saved_folder, str):
-            selected_output_folder = fallback_folder
-        elif saved_folder == "":
-            selected_output_folder = fallback_folder
-        else:
-            saved_folder = Path(saved_folder)
-            if saved_folder.is_dir():
-                selected_output_folder = saved_folder
-            else:
-                selected_output_folder = fallback_folder
-
-    except Exception:
-        selected_output_folder = fallback_folder
+selected_output_folder = load_download_folder()
 
 
 def choose_download_folder():
@@ -47,33 +23,16 @@ def choose_download_folder():
 
     selected_output_folder = Path(folder)
     folder_label.configure(text=f"Save to: {selected_output_folder}")
+    save_download_folder(selected_output_folder)
 
-    settings = {
-        "download_dir": str(selected_output_folder)
-    }
-    settings_json = json.dumps(settings, indent=4)
-    settings_json_path.write_text(settings_json)
-
-link_entry = ctk.CTkEntry(app, placeholder_text="Paste Spotify Link")
-
-choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_download_folder)
-folder_label = ctk.CTkLabel(app, text=f"Save to: {selected_output_folder}", wraplength=440)
-
-status_label = ctk.CTkLabel(app, text="")
-progress_bar = ctk.CTkProgressBar(app, orientation="horizontal", width=450, height=20, corner_radius=5)
-progress_bar.set(0)
 
 def progress_update(message, progress):
     def update_status():
         status_label.configure(text=message)
         progress_bar.set(progress)
+    # noinspection PyTypeChecker
     app.after(0, update_status)
 
-title_label = ctk.CTkLabel(app, text="")
-artist_label = ctk.CTkLabel(app, text="")
-album_label = ctk.CTkLabel(app, text="")
-
-path_label = ctk.CTkLabel(app, text="")
 
 def preview(link):
     try:
@@ -89,6 +48,7 @@ def preview(link):
             artist_label.configure(text=f"Artist(s): {', '.join(result['artists'])}")
             album_label.configure(text=f"Album: {result['album']}")
 
+        # noinspection PyTypeChecker
         app.after(0, show_preview)
 
     except Exception as error:
@@ -98,19 +58,27 @@ def preview(link):
             status_label.configure(text="Error")
             path_label.configure(text=error_message, wraplength=440)
 
+        # noinspection PyTypeChecker
         app.after(0, show_error)
 
     finally:
         def enable_buttons():
-            preview_button.configure(state="normal")
-            download_button.configure(state="normal")
+            set_button_state("normal")
 
+        # noinspection PyTypeChecker
         app.after(0, enable_buttons)
+
+
+def set_button_state(state, include_folder_button=False):
+    preview_button.configure(state=state)
+    download_button.configure(state=state)
+    if include_folder_button:
+        choose_folder_button.configure(state=state)
+
 
 def start_preview():
     link = link_entry.get()
-    preview_button.configure(state="disabled")
-    download_button.configure(state="disabled")
+    set_button_state("disabled")
     status_label.configure(text="")
     path_label.configure(text="")
     title_label.configure(text="")
@@ -119,7 +87,6 @@ def start_preview():
 
     threading.Thread(target=preview, args=(link,), daemon=True).start()
 
-preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
 
 def run_download(link, output_folder):
     try:
@@ -133,6 +100,7 @@ def run_download(link, output_folder):
                 status_label.configure(text="Download Complete")
                 path_label.configure(text=f"Downloaded to: {result['downloaded_path']}", wraplength=440)
 
+        # noinspection PyTypeChecker
         app.after(0, check_ok)
 
     except Exception as error:
@@ -141,26 +109,37 @@ def run_download(link, output_folder):
         def check_exception():
             status_label.configure(text="Error")
             path_label.configure(text=error_message, wraplength=440)
+        # noinspection PyTypeChecker
         app.after(0, check_exception)
 
     finally:
         def enable_buttons():
-            download_button.configure(state="normal")
-            preview_button.configure(state="normal")
-            choose_folder_button.configure(state="normal")
+            set_button_state("normal", include_folder_button=True)
+        # noinspection PyTypeChecker
         app.after(0, enable_buttons)
+
 
 def start_download():
     link = link_entry.get()
     output_folder = selected_output_folder
-    download_button.configure(state="disabled")
-    preview_button.configure(state="disabled")
-    choose_folder_button.configure(state="disabled")
+    set_button_state("disabled", include_folder_button=True)
     path_label.configure(text="")
     progress_bar.set(0)
 
     threading.Thread(target=run_download, args=(link, output_folder), daemon=True).start()
 
+
+link_entry = ctk.CTkEntry(app, placeholder_text="Paste Spotify Link")
+choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_download_folder)
+folder_label = ctk.CTkLabel(app, text=f"Save to: {selected_output_folder}", wraplength=440)
+status_label = ctk.CTkLabel(app, text="")
+progress_bar = ctk.CTkProgressBar(app, orientation="horizontal", width=450, height=20, corner_radius=5)
+progress_bar.set(0)
+title_label = ctk.CTkLabel(app, text="")
+artist_label = ctk.CTkLabel(app, text="")
+album_label = ctk.CTkLabel(app, text="")
+path_label = ctk.CTkLabel(app, text="")
+preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
 download_button = ctk.CTkButton(app, text="Download", command=start_download)
 
 link_entry.pack(padx=20, pady=20, fill="x")
