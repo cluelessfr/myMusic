@@ -16,6 +16,7 @@ __pycache__/
 *.pyc
 *.log
 data/downloads/
+docs/
 dist/
 build/
 myMusic-v*-windows.zip
