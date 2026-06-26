@@ -12,9 +12,15 @@ def fetch_spotify_oembed(cleaned_url):
         "url": cleaned_url
     }
 
-    response = requests.get(url, params=params, timeout=10)
+    try:
+        response = requests.get(url, params=params, timeout=10)
+    except requests.RequestException:
+        return None
 
     if response.status_code != 200:
         return None
 
-    return response.json()
+    try:
+        return response.json()
+    except ValueError:
+        return None
