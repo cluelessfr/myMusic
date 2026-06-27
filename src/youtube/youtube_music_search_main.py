@@ -3,16 +3,26 @@ import urllib.parse
 import yt_dlp
 
 
-def build_youtube_music_search_url(metadata):
+def search_text_strings(metadata):
     title = metadata["title"]
     artists = " ".join(metadata["artists"])
-    base_url = "https://music.youtube.com/search"
+    if metadata and metadata["artists"] is not None:
+        first_artist = metadata["artists"][0] if metadata["artists"] else ""
+    else:
+        first_artist = ""
 
-    search_text = title + " " + artists
+    search_text0 = title + " " + artists
+    search_text1 = title + " " + first_artist + " official audio"
+    search_text2 = title
 
-    query_string = urllib.parse.urlencode({'q': search_text})
+    if first_artist == "":
+        return [search_text2]
+    else:
+        return [search_text0, search_text1, search_text2]
 
-    search_url = urllib.parse.urljoin(base_url, f"?{query_string}")
+def build_search_url(search_text_string, base_url="https://music.youtube.com/search"):
+    search_query = urllib.parse.urlencode({'q': search_text_string})
+    search_url = urllib.parse.urljoin(base_url, f"?{search_query}")
 
     return search_url
 
@@ -30,7 +40,7 @@ def search_youtube_music(search_url):
     return search_results
 
 
-def filter_youtube_music_candidates(search_results, limit=5):
+def filter_youtube_music_candidates(search_results, limit=3):
     candidates = []
 
     for entry in search_results.get("entries", []):
@@ -56,8 +66,9 @@ def filter_youtube_music_candidates(search_results, limit=5):
     return candidates
 
 
-def get_youtube_music_candidates(metadata, limit=5):
-    search_url = build_youtube_music_search_url(metadata)
+def get_youtube_music_candidates(metadata, limit=3):
+    search_text = search_text_strings(metadata)
+    search_url = build_search_url(search_text[0])
     search_results = search_youtube_music(search_url)
     candidates = filter_youtube_music_candidates(search_results, limit)
 

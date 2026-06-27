@@ -42,13 +42,30 @@ def test_candidate_ranking():
     }
 
     fake_candidates = [
-        {"title": "Blinding Lights cover karaoke", "url": "bad"},
-        {"title": "Blinding Lights The Weeknd Official Audio", "url": "good"},
+        {"title": "Blinding Lights cover karaoke", "url": "bad", "source": "youtube_music"},
+        {"title": "Blinding Lights The Weeknd Official Audio", "url": "good", "source": "youtube_music"},
     ]
 
     ranked_candidates = rank_candidates(fake_metadata, fake_candidates)
 
-    print(f"Best Candidate: {ranked_candidates[0]['title']}")
+    ytm_metadata = {
+        "title": "Levitating",
+        "artists": ["Dua Lipa"],
+    }
+
+    ytm_candidates = [
+        {"title": "Levitating", "source": "youtube_music", "url": "music",},
+        {"title": "Dua Lipa - Levitating (Lyrics)", "source": "youtube", "url": "youtube"}
+    ]
+
+    ranked_candidates2 = rank_candidates(ytm_metadata, ytm_candidates)
+
+    print(f"Best Candidate (Basic Test): {ranked_candidates[0]['title']}")
+
+    assert ranked_candidates2[0]["source"] == "youtube_music"
+    assert ranked_candidates2[0]["title"] == "Levitating"
+
+    print(f"Best Candidate (YTM Test): {ranked_candidates2}")
 
 def main():
     for case in test_cases:

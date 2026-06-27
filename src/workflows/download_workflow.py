@@ -1,5 +1,6 @@
 from src.metadata_providers.metadata_resolver import validate_link_get_metadata
 from src.youtube.youtube_music_search_main import get_youtube_music_candidates
+from src.youtube.youtube_search_main import get_youtube_candidates
 from src.youtube.best_match_downloader import download_audio
 from src.youtube.candidate_ranker import rank_candidates
 from src.audio.metadata_tagger import add_metadata
@@ -50,7 +51,7 @@ def make_download_success(metadata, candidate, downloaded_path):
 
 def download_song_from_spotify_link(spotify_link, output_folder=None, progress_callback=None):
 
-    limit = 10
+    limit = 3
 
     if progress_callback:
         progress_callback("Fetching Metadata...", 0)
@@ -63,12 +64,15 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
 
     if progress_callback:
         progress_callback("Searching for Candidates...", 0.25)
-    candidates = get_youtube_music_candidates(metadata, limit)
+
+    ytm_candidates = get_youtube_music_candidates(metadata, limit)
+    yt_candidates = get_youtube_candidates(metadata, limit)
+    candidates = ytm_candidates + yt_candidates
 
     ranked_candidates = rank_candidates(metadata, candidates)
 
     if not ranked_candidates:
-        return make_download_failure(status="no_youtube_results", error="No YouTube Music candidates found", metadata=metadata)
+        return make_download_failure(status="no_youtube_results", error="No YouTube candidates found", metadata=metadata)
 
     downloaded_path = None
     candidate_error = None

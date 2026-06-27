@@ -41,7 +41,9 @@ def score_candidate(metadata, candidate):
         score += 1
 
     if lower_candidate_title == lower_title:
-        score += 2
+        score += 1
+        if candidate["source"] == "youtube_music":
+            score += 2
 
     for artist in artists:
         lower_artist = artist.lower()
@@ -49,10 +51,10 @@ def score_candidate(metadata, candidate):
             score += 1
 
         if f"{lower_artist} - {lower_title}" in lower_candidate_title:
-            score += 2
+            score += 1
 
         if f"{lower_title} - {lower_artist}" in lower_candidate_title:
-            score += 2
+            score += 1
 
     if "official audio" in lower_candidate_title:
         score += 1
