@@ -90,6 +90,5 @@ GitHub Release page -> download installer -> install myMusic -> run myMusic -> M
 
 - Playlist downloads.
 - Album downloads.
-- Manually choosing between multiple matching candidates.
 - Embedded cover artwork.
 - A built-in workaround for occasional YouTube bot checks.
