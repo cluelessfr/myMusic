@@ -10,7 +10,7 @@ Paste a Spotify track link, preview the song details, then download the matched 
 
 | Platform | Status | Download |
 | --- | --- | --- |
-| Windows | Supported | `myMusic-v1.0.3-windows-setup.exe` from GitHub Releases |
+| Windows | Supported | `myMusic-v1.1.0-windows-setup.exe` from GitHub Releases |
 | macOS | Not supported yet | N/A |
 | Linux | Not supported yet | N/A |
 
@@ -21,7 +21,7 @@ The recommended Windows download is the installer from the GitHub Releases page.
 You do not need to install Python, project dependencies, FFmpeg, or developer tools. The installer includes the executable and the files the app needs to run.
 
 1. Open the myMusic Releases page: https://github.com/cluelessfr/myMusic/releases
-2. Download `myMusic-v1.0.3-windows-setup.exe`.
+2. Download `myMusic-v1.1.0-windows-setup.exe`.
 3. Open the downloaded installer.
 4. Follow the setup steps.
 5. Launch myMusic from the installer, Start Menu, or desktop shortcut if you selected one.
@@ -51,7 +51,7 @@ To continue:
 
 ## Known Issue: YouTube Bot Check
 
-myMusic uses YouTube Music through yt-dlp to find and download matching audio. Sometimes YouTube blocks automated requests and shows a "Sign in to confirm you're not a bot" error.
+myMusic uses YouTube Music and regular YouTube through yt-dlp to find and download matching audio. Sometimes YouTube blocks automated requests and shows a "Sign in to confirm you're not a bot" error.
 
 This is a YouTube-side anti-bot check, not an installation problem with myMusic. If it happens, myMusic shows a clearer bot-check message instead of raw technical download details. Try again later or from a different network. This version does not ask for your YouTube account or browser cookies.
 
@@ -70,7 +70,7 @@ For a single Spotify track link, myMusic:
 
 - Reads and cleans the Spotify link.
 - Gets the track title, artists, album, and other metadata.
-- Searches YouTube Music for a matching result.
+- Searches YouTube Music and regular YouTube for matching results.
 - Downloads the selected audio.
 - Converts it to MP3.
 - Adds basic title, artist, and album tags.
@@ -90,6 +90,6 @@ GitHub Release page -> download installer -> install myMusic -> run myMusic -> M
 
 - Playlist downloads.
 - Album downloads.
-- Manually choosing between multiple YouTube Music matches.
+- Manually choosing between multiple matching candidates.
 - Embedded cover artwork.
 - A built-in workaround for occasional YouTube bot checks.
