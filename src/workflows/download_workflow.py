@@ -2,7 +2,7 @@ from src.metadata_providers.metadata_resolver import validate_link_get_metadata
 from src.youtube.youtube_music_search_main import get_youtube_music_candidates
 from src.youtube.youtube_search_main import get_youtube_candidates
 from src.youtube.best_match_downloader import download_audio
-from src.youtube.candidate_ranker import rank_candidates
+from src.youtube.candidate_ranker import score_candidates
 from src.audio.metadata_tagger import add_metadata
 
 
@@ -69,30 +69,39 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
     yt_candidates = get_youtube_candidates(metadata, limit)
     candidates = ytm_candidates + yt_candidates
 
-    ranked_candidates = rank_candidates(metadata, candidates)
+    scored_candidates = score_candidates(metadata, candidates)
 
-    if not ranked_candidates:
+    if not scored_candidates:
         return make_download_failure(status="no_youtube_results", error="No YouTube candidates found", metadata=metadata)
 
     downloaded_path = None
     candidate_error = None
     successful_candidate = None
-    length_of_list = len(ranked_candidates)
+    length_of_list = len(scored_candidates)
+    minimum_score = 3
 
-    for index, candidate in enumerate(ranked_candidates, start=1):
-        if progress_callback:
-            progress_callback(f"Trying Match {index} of {length_of_list}", 0.5)
+    for index, candidate in enumerate(scored_candidates, start=1):
+        candidate_dict = candidate[0]
+        candidate_score = candidate[1]
 
-        try:
-            downloaded_path = download_audio(candidate, metadata, output_folder)
+        if candidate_score >= minimum_score:
+            if progress_callback:
+                progress_callback(f"Trying Match {index} of {length_of_list}", 0.5)
+            try:
+                downloaded_path = download_audio(candidate_dict, metadata, output_folder)
 
-            successful_candidate = candidate
+                successful_candidate = candidate_dict
 
+                break
+
+            except Exception as error:
+                candidate_error = str(error)
+                continue
+
+        else:
+            if candidate_error is None:
+                candidate_error = "No confident YouTube match found."
             break
-
-        except Exception as error:
-            candidate_error = str(error)
-            continue
 
     if not downloaded_path:
         return make_download_failure(status="no_valid_matches", error=format_download_error(candidate_error), metadata=metadata, technical_error=candidate_error)

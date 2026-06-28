@@ -68,3 +68,15 @@ def score_candidate(metadata, candidate):
 
 def rank_candidates(metadata, candidates):
     return sorted(candidates, key=lambda candidate: score_candidate(metadata, candidate), reverse=True)
+
+def score_candidates(metadata, candidates):
+    scored_candidates = []
+
+    for candidate in candidates:
+        score = score_candidate(metadata, candidate)
+        candidate_group = [candidate, score]
+        scored_candidates.append(candidate_group)
+
+    sorted_list = sorted(scored_candidates, key=lambda candidate_in_list: candidate_in_list[1], reverse=True)
+
+    return sorted_list

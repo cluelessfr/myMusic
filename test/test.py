@@ -1,5 +1,5 @@
 from src.metadata_providers.metadata_resolver import validate_link_get_metadata
-from src.youtube.candidate_ranker import rank_candidates
+from src.youtube.candidate_ranker import rank_candidates, score_candidates
 from unittest.mock import patch
 
 test_cases = [
@@ -47,6 +47,7 @@ def test_candidate_ranking():
     ]
 
     ranked_candidates = rank_candidates(fake_metadata, fake_candidates)
+    scored_candidates = score_candidates(fake_metadata, fake_candidates)
 
     ytm_metadata = {
         "title": "Levitating",
@@ -66,6 +67,12 @@ def test_candidate_ranking():
     assert ranked_candidates2[0]["title"] == "Levitating"
 
     print(f"Best Candidate (YTM Test): {ranked_candidates2}")
+
+    assert scored_candidates[0][0]["title"] == "Blinding Lights The Weeknd Official Audio"
+    assert scored_candidates[0][1] > scored_candidates[1][1]
+    assert scored_candidates[0][1] >= 3
+
+    print(scored_candidates)
 
 def main():
     for case in test_cases:
