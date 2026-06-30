@@ -45,7 +45,7 @@ def check_for_update():
     if not latest_release_dict:
         return {
             "status": "Failed",
-            "update": "No updates available",
+            "update": False,
             "current_version": CURRENT_APP_VERSION,
             "latest_version": CURRENT_APP_VERSION,
             "message": "Failed to fetch latest release",
@@ -61,7 +61,7 @@ def check_for_update():
         if installer_asset is None:
             return {
                 "status": "Failed",
-                "update": "No updates available",
+                "update": False,
                 "current_version": CURRENT_APP_VERSION,
                 "latest_version": normalized_tag_name,
                 "message": "No installer asset found",
@@ -69,7 +69,7 @@ def check_for_update():
 
         return {
             "status": "Success",
-            "update": "Updates available",
+            "update": True,
             "current_version": CURRENT_APP_VERSION,
             "latest_version": normalized_tag_name,
             "message": "Updates available",
@@ -81,7 +81,7 @@ def check_for_update():
 
     return {
         "status": "Success",
-        "update": "No updates available",
+        "update": False,
         "current_version": CURRENT_APP_VERSION,
         "latest_version": normalized_tag_name,
         "message": "The app is up to date",

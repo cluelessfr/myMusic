@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from src.workflows.download_workflow import download_song_from_spotify_link, preview_metadata
 from src.gui.settings import load_download_folder, save_download_folder
+from src.updater.update_checker import check_for_update
 from tkinter import filedialog
 from pathlib import Path
 import threading
@@ -8,7 +9,7 @@ import threading
 
 app = ctk.CTk()
 app.title("myMusic")
-app.geometry("500x540")
+app.geometry("500x590")
 
 selected_output_folder = load_download_folder()
 
@@ -72,6 +73,7 @@ def preview(link):
 def set_button_state(state, include_folder_button=False):
     preview_button.configure(state=state)
     download_button.configure(state=state)
+    update_button.configure(state=state)
     if include_folder_button:
         choose_folder_button.configure(state=state)
 
@@ -86,6 +88,31 @@ def start_preview():
     album_label.configure(text="")
 
     threading.Thread(target=preview, args=(link,), daemon=True).start()
+
+
+def update_check_helper():
+    update_status = check_for_update()
+    def update_ui():
+        if update_status["update"]:
+            status_label.configure(text="Updates Available")
+            path_label.configure(text=f"Current Version: {update_status['current_version']}     Latest Version: {update_status['latest_version']}    Installer Name: {update_status['installer_asset']['asset_name']}")
+        elif update_status["status"] == "Failed":
+            status_label.configure(text=update_status["message"])
+        else:
+            status_label.configure(text=update_status["message"])
+
+        set_button_state("normal", include_folder_button=True)
+
+    # noinspection PyTypeChecker
+    app.after(0, update_ui)
+
+
+def start_update_check():
+    set_button_state("disabled", include_folder_button=True)
+    status_label.configure(text="Checking for updates...")
+    path_label.configure(text="")
+
+    threading.Thread(target=update_check_helper, daemon=True).start()
 
 
 def run_download(link, output_folder):
@@ -138,8 +165,9 @@ progress_bar.set(0)
 title_label = ctk.CTkLabel(app, text="")
 artist_label = ctk.CTkLabel(app, text="")
 album_label = ctk.CTkLabel(app, text="")
-path_label = ctk.CTkLabel(app, text="")
+path_label = ctk.CTkLabel(app, text="", wraplength=440)
 preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
+update_button = ctk.CTkButton(app, text="Check For App Updates", command=start_update_check)
 download_button = ctk.CTkButton(app, text="Download", command=start_download)
 
 link_entry.pack(padx=20, pady=20, fill="x")
@@ -151,6 +179,7 @@ artist_label.pack(pady=10)
 album_label.pack(pady=10)
 path_label.pack(pady=10)
 download_button.pack(pady=10)
+update_button.pack(pady=10)
 status_label.pack(pady=10)
 progress_bar.pack(pady=10)
 
