@@ -29,4 +29,4 @@ Name: "{group}\Uninstall myMusic"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\myMusic"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch myMusic"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch myMusic"; Flags: nowait postinstall

@@ -112,8 +112,14 @@ def update_download():
     def update_ui():
         if result["ok"]:
             path_label.configure(text=f"Downloaded to: {result['download_path']}", wraplength=440)
-            status_label.configure(text=install_result["message"])
-            update_button.configure(text="Check For App Updates", command=start_update_check)
+            if install_result["ok"]:
+                status_label.configure(text=install_result["message"])
+                update_button.configure(text="Check For App Updates", command=start_update_check)
+                # noinspection PyTypeChecker
+                app.after(1000, app.destroy)
+            else:
+                status_label.configure(text=install_result["message"])
+                update_button.configure(text="Check For App Updates", command=start_update_check)
         else:
             status_label.configure(text=result["message"])
             path_label.configure(text="")

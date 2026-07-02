@@ -19,7 +19,7 @@ def run_update_installer(installer_path):
         }
 
     try:
-        subprocess.Popen(str(path))
+        subprocess.Popen([str(path), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"])
     except OSError:
         return {
             "ok": False,
