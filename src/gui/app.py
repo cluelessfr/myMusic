@@ -16,6 +16,7 @@ app.geometry("500x590")
 
 selected_output_folder = load_download_folder()
 UPDATE_STATUS: dict[str, Any] | None = None
+UPDATE_CANCEL_EVENT: threading.Event | None = None
 
 
 def choose_download_folder():
@@ -95,7 +96,10 @@ def start_preview():
 
 
 def update_download():
+    global UPDATE_CANCEL_EVENT
+
     update_status = UPDATE_STATUS
+    update_cancel_event = UPDATE_CANCEL_EVENT
 
     if update_status is None:
         return
@@ -104,12 +108,14 @@ def update_download():
     download_url = installer_asset["download_url"]
     asset_name = installer_asset["asset_name"]
 
-    result = download_update_installer(download_url, asset_name, progress_callback=progress_update)
+    result = download_update_installer(download_url, asset_name, progress_callback=progress_update, cancel_event=update_cancel_event)
 
     if result["ok"]:
         install_result = run_update_installer(result["download_path"])
 
     def update_ui():
+        global UPDATE_CANCEL_EVENT
+
         if result["ok"]:
             path_label.configure(text=f"Downloaded to: {result['download_path']}", wraplength=440)
             if install_result["ok"]:
@@ -120,22 +126,44 @@ def update_download():
             else:
                 status_label.configure(text=install_result["message"])
                 update_button.configure(text="Check For App Updates", command=start_update_check)
+        elif result.get("canceled"):
+            status_label.configure(text="Update canceled")
+            path_label.configure(text="")
+            update_button.configure(text="Check For App Updates", command=start_update_check)
+            progress_bar.set(0)
         else:
             status_label.configure(text=result["message"])
             path_label.configure(text="")
 
         set_button_state("normal", include_folder_button=True)
+        UPDATE_CANCEL_EVENT = None
 
     # noinspection PyTypeChecker
     app.after(0, update_ui)
 
 
+def cancel_update_download():
+    global UPDATE_CANCEL_EVENT
+
+    if UPDATE_CANCEL_EVENT is not None:
+        UPDATE_CANCEL_EVENT.set()
+
+    status_label.configure(text="Canceling update...")
+    update_button.configure(state="disabled", text="Canceling Update...")
+
+
 def start_update_download():
+    global UPDATE_CANCEL_EVENT
+
     if UPDATE_STATUS is None:
         status_label.configure(text="No Updates Available")
         return
 
+    UPDATE_CANCEL_EVENT = threading.Event()
+    update_button.configure(text="Cancel Update", command=cancel_update_download)
+
     set_button_state("disabled", include_folder_button=True)
+    update_button.configure(state="normal")
 
     path_label.configure(text="")
     progress_bar.set(0)
