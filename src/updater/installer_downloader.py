@@ -3,7 +3,7 @@ from pathlib import Path
 import requests
 
 
-def download_update_installer(download_url, asset_name, download_folder=None):
+def download_update_installer(download_url, asset_name, download_folder=None, progress_callback=None):
     if download_folder is None:
         download_folder = Path.home() / "Downloads"
 
@@ -17,12 +17,30 @@ def download_update_installer(download_url, asset_name, download_folder=None):
         download = requests.get(download_url, stream=True, timeout=10)
         download.raise_for_status()
 
+        response_size = download.headers.get("content-length")
+
+        if response_size is not None:
+            size = int(response_size)
+        else:
+            size = 0
+
+        bytes_downloaded = 0
+
         with open(temp_path, "wb") as file:
             for chunk in download.iter_content(chunk_size=1024):
                 if chunk:
                     file.write(chunk)
+                    bytes_downloaded += len(chunk)
+                    if progress_callback:
+                        if size != 0:
+                            progress_callback("Downloading update", min((bytes_downloaded / size), 1.0))
+                        else:
+                            progress_callback("Downloading update", 0)
 
         temp_path.replace(final_path)
+
+        if progress_callback:
+            progress_callback("Download complete", 1.0)
 
         return {
             "ok": True,
