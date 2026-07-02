@@ -3,6 +3,7 @@ from src.workflows.download_workflow import download_song_from_spotify_link, pre
 from src.gui.settings import load_download_folder, save_download_folder
 from src.updater.update_checker import check_for_update
 from src.updater.installer_downloader import download_update_installer
+from src.updater.installer_runner import run_update_installer
 from tkinter import filedialog
 from typing import Any
 from pathlib import Path
@@ -105,11 +106,14 @@ def update_download():
 
     result = download_update_installer(download_url, asset_name, progress_callback=progress_update)
 
+    if result["ok"]:
+        install_result = run_update_installer(result["download_path"])
+
     def update_ui():
         if result["ok"]:
-            update_button.configure(text="Check For App Updates", command=start_update_check)
-            status_label.configure(text="Update installer downloaded")
             path_label.configure(text=f"Downloaded to: {result['download_path']}", wraplength=440)
+            status_label.configure(text=install_result["message"])
+            update_button.configure(text="Check For App Updates", command=start_update_check)
         else:
             status_label.configure(text=result["message"])
             path_label.configure(text="")
@@ -143,7 +147,7 @@ def update_check_helper():
 
         if update_status["update"]:
             UPDATE_STATUS = update_status
-            update_button.configure(text="Download Update", command=start_update_download)
+            update_button.configure(text="Download And Install Update", command=start_update_download)
             status_label.configure(text="Updates Available")
             path_label.configure(text=f"Current Version: {update_status['current_version']}     Latest Version: {update_status['latest_version']}    Installer Name: {update_status['installer_asset']['asset_name']}")
         elif update_status["status"] == "Failed":
@@ -222,7 +226,7 @@ album_label = ctk.CTkLabel(app, text="Album:")
 path_label = ctk.CTkLabel(app, text="", wraplength=440)
 preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
 update_button = ctk.CTkButton(app, text="Check For App Updates", command=start_update_check)
-download_button = ctk.CTkButton(app, text="Download", command=start_download)
+download_button = ctk.CTkButton(app, text="Download Song", command=start_download)
 
 link_entry.pack(padx=20, pady=20, fill="x")
 preview_button.pack(pady=10)
