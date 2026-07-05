@@ -1,4 +1,5 @@
 import os
+import sys
 import yt_dlp
 from pathlib import Path
 from typing import Any, cast
@@ -19,12 +20,12 @@ def download_audio(candidate, metadata, output_folder=None):
     final_path = Path(output_folder) / f"{filename}.mp3"
 
     app_root = get_app_root()
-    ffmpeg_folder = app_root / "tools" / "ffmpeg" / "bin"
+    ffmpeg_name = "ffmpeg.exe" if sys.platform.startswith("win") else "ffmpeg"
+    ffmpeg_path = app_root / "tools" / "ffmpeg" / "bin" / ffmpeg_name
 
     ydl_opts = {
         "outtmpl": str(Path(output_folder) / f"{filename}.%(ext)s"),
         "format": "bestaudio/best",
-        "ffmpeg_location": str(ffmpeg_folder),
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -34,7 +35,11 @@ def download_audio(candidate, metadata, output_folder=None):
         ],
     }
 
-    deno_path = app_root / "tools" / "deno" / "bin" / "deno.exe"
+    if ffmpeg_path.exists():
+        ydl_opts["ffmpeg_location"] = str(ffmpeg_path.parent)
+
+    deno_name = "deno.exe" if sys.platform.startswith("win") else "deno"
+    deno_path = app_root / "tools" / "deno" / "bin" / deno_name
 
     if deno_path.exists():
         ydl_opts["js_runtimes"] = cast(

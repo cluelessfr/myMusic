@@ -1,7 +1,8 @@
 from pathlib import Path
 import json
+import sys
 
-settings_path = Path("~/AppData/Roaming/myMusic").expanduser()
+settings_path = Path("~/AppData/Roaming/myMusic").expanduser() if sys.platform.startswith("win") else Path("~/.config/myMusic").expanduser()
 settings_json_path = settings_path / "settings.json"
 
 fallback_folder = Path.home() / "Downloads"

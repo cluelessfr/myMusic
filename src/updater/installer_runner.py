@@ -1,3 +1,4 @@
+import sys
 import subprocess
 from pathlib import Path
 
@@ -9,6 +10,13 @@ def run_update_installer(installer_path):
             "ok": False,
             "status": "Install failed",
             "message": "Path does not exist",
+        }
+
+    if sys.platform.startswith("linux"):
+        return {
+            "ok": False,
+            "status": "Manual install required",
+            "message": "Update archive downloaded. Install it manually.",
         }
 
     if path.suffix.lower() != ".exe":
