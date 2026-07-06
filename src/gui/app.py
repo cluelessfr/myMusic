@@ -24,7 +24,7 @@ def choose_download_folder():
 
     folder = filedialog.askdirectory(initialdir=str(selected_output_folder))
 
-    if folder == "":
+    if not folder:
         return
 
     selected_output_folder = Path(folder)
