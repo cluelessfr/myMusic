@@ -1,6 +1,6 @@
 # myMusic
 
-myMusic is a Windows desktop app that uses a Spotify track link to find a matching song and save it as a local MP3 file.
+myMusic is a desktop app that uses a Spotify track link to find a matching song and save it as a local MP3 file.
 
 ![myMusic desktop app screenshot](.github/assets/myMusic-gui.png)
 
@@ -11,22 +11,43 @@ Paste a Spotify track link, preview the song details, then download the matched 
 | Platform | Status | Download |
 | --- | --- | --- |
 | Windows | Supported | `myMusic-v1.2.0-windows-setup.exe` from GitHub Releases |
+| Linux ARM64 | Experimental | `myMusic-v1.2.0-linux-arm64.tar.gz` from GitHub Releases |
+| Linux x64 | Not supported yet | N/A |
 | macOS | Not supported yet | N/A |
-| Linux | Not supported yet | N/A |
 
 ## Download And Install
 
-The recommended Windows download is the installer from the GitHub Releases page.
+Download myMusic from the GitHub Releases page: https://github.com/cluelessfr/myMusic/releases
 
-You do not need to install Python, project dependencies, FFmpeg, or developer tools. The installer includes the executable and the files the app needs to run.
+You do not need to install Python, project dependencies, FFmpeg, Deno, or developer tools. The release files include the executable and the files the app needs to run.
 
-1. Open the myMusic Releases page: https://github.com/cluelessfr/myMusic/releases
-2. Download `myMusic-v1.2.0-windows-setup.exe`.
-3. Open the downloaded installer.
-4. Follow the setup steps.
-5. Launch myMusic from the installer, Start Menu, or desktop shortcut if you selected one.
+### Windows
+
+The recommended Windows download is the installer.
+
+1. Download `myMusic-v1.2.0-windows-setup.exe`.
+2. Open the downloaded installer.
+3. Follow the setup steps.
+4. Launch myMusic from the installer, Start Menu, or desktop shortcut if you selected one.
 
 The release may also include a Windows zip file. Use the installer unless you specifically want the portable zip version. If you use the zip, extract it first and keep the extracted folder together.
+
+### Linux ARM64
+
+The Linux ARM64 build is experimental and was tested on 64-bit Raspberry Pi OS. It is for ARM64 Linux devices such as a 64-bit Raspberry Pi, not typical Intel or AMD Linux PCs.
+
+1. Download `myMusic-v1.2.0-linux-arm64.tar.gz`.
+2. Extract the downloaded archive.
+3. Open the extracted `myMusic` folder.
+4. Run the `myMusic` executable inside that folder.
+
+From a terminal, you can run:
+
+```text
+tar -xzf myMusic-v1.2.0-linux-arm64.tar.gz
+cd myMusic
+./myMusic
+```
 
 ## Windows SmartScreen
 
@@ -64,6 +85,8 @@ You can uninstall myMusic from:
 - Windows Settings > Apps > Installed apps.
 - The Start Menu entry named **Uninstall myMusic**.
 
+For Linux ARM64, delete the extracted `myMusic` folder.
+
 ## What The App Does
 
 For a single Spotify track link, myMusic:
@@ -83,7 +106,7 @@ myMusic runs on your computer.
 The GitHub Release page only hosts the download. After you download and run myMusic, the lookup, download, conversion, tagging, and file saving happen locally on your machine.
 
 ```text
-GitHub Release page -> download installer -> install myMusic -> run myMusic -> MP3 saved locally
+GitHub Release page -> download release file -> install or extract myMusic -> run myMusic -> MP3 saved locally
 ```
 
 ## Not Finished Yet
