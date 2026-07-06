@@ -11,8 +11,8 @@ Paste a Spotify track link, preview the song details, then download the matched 
 | Platform | Status | Download |
 | --- | --- | --- |
 | Windows | Supported | `myMusic-v1.2.0-windows-setup.exe` from GitHub Releases |
+| Linux x64 | Experimental | `myMusic-v1.2.0-linux-x64.tar.gz` from GitHub Releases |
 | Linux ARM64 | Experimental | `myMusic-v1.2.0-linux-arm64.tar.gz` from GitHub Releases |
-| Linux x64 | Not supported yet | N/A |
 | macOS | Not supported yet | N/A |
 
 ## Download And Install
@@ -31,6 +31,23 @@ The recommended Windows download is the installer.
 4. Launch myMusic from the installer, Start Menu, or desktop shortcut if you selected one.
 
 The release may also include a Windows zip file. Use the installer unless you specifically want the portable zip version. If you use the zip, extract it first and keep the extracted folder together.
+
+### Linux x64
+
+The Linux x64 build is experimental. It is for typical Intel and AMD Linux PCs, not Raspberry Pi or other ARM64 devices.
+
+1. Download `myMusic-v1.2.0-linux-x64.tar.gz`.
+2. Extract the downloaded archive.
+3. Open the extracted `myMusic` folder.
+4. Run the `myMusic` executable inside that folder.
+
+From a terminal, you can run:
+
+```text
+tar -xzf myMusic-v1.2.0-linux-x64.tar.gz
+cd myMusic
+./myMusic
+```
 
 ### Linux ARM64
 
@@ -85,7 +102,7 @@ You can uninstall myMusic from:
 - Windows Settings > Apps > Installed apps.
 - The Start Menu entry named **Uninstall myMusic**.
 
-For Linux ARM64, delete the extracted `myMusic` folder.
+For Linux x64 and Linux ARM64, delete the extracted `myMusic` folder.
 
 ## What The App Does
 
