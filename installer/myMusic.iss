@@ -1,5 +1,5 @@
 #define MyAppName "myMusic"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.3.0"
 #define MyAppExeName "myMusic.exe"
 
 [Setup]
