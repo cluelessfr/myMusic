@@ -24,7 +24,7 @@ jobs:
       - name: Download bundled FFmpeg
         run: |
           mkdir -p tools/ffmpeg/bin
-          curl -L -o ffmpeg-linux-x64.tar.xz https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+          curl -L --retry 5 --retry-all-errors --connect-timeout 30 -o ffmpeg-linux-x64.tar.xz https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
           mkdir ffmpeg-extract
           tar -xJf ffmpeg-linux-x64.tar.xz -C ffmpeg-extract
           cp ffmpeg-extract/ffmpeg-*-amd64-static/ffmpeg tools/ffmpeg/bin/ffmpeg
@@ -37,7 +37,7 @@ jobs:
       - name: Download bundled Deno
         run: |
           mkdir -p tools/deno/bin
-          curl -L -o deno.zip https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip
+          curl -L --retry 5 --retry-all-errors --connect-timeout 30 -o deno.zip https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip
           unzip deno.zip
           mv deno tools/deno/bin/deno
           chmod +x tools/deno/bin/deno
