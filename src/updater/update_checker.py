@@ -1,3 +1,4 @@
+import platform
 import requests
 import sys
 from typing import Any, Dict, Optional
@@ -7,7 +8,11 @@ GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/cluelessfr/myMusic/rel
 if sys.platform.startswith("win"):
     INSTALLER_ASSET_SUFFIX = "windows-setup.exe"
 elif sys.platform.startswith("linux"):
-    INSTALLER_ASSET_SUFFIX = "linux-x64.tar.gz"
+    machine = platform.machine().lower()
+    if machine in ("aarch64", "arm64"):
+        INSTALLER_ASSET_SUFFIX = "linux-arm64.tar.gz"
+    else:
+        INSTALLER_ASSET_SUFFIX = "linux-x64.tar.gz"
 else:
     INSTALLER_ASSET_SUFFIX = None
 
