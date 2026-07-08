@@ -17,7 +17,7 @@ Paste a Spotify track link, preview the song details, then download the matched 
 
 ## Download And Install
 
-Download myMusic from the GitHub Releases page: https://github.com/cluelessfr/myMusic/releases
+Download myMusic from the [GitHub Releases page](https://github.com/cluelessfr/myMusic/releases).
 
 You do not need to install Python, project dependencies, FFmpeg, Deno, or developer tools. The release files include the executable and the files the app needs to run.
 
@@ -30,7 +30,7 @@ The recommended Windows download is the installer.
 3. Follow the setup steps.
 4. Launch myMusic from the installer, Start Menu, or desktop shortcut if you selected one.
 
-The release may also include a Windows zip file. Use the installer unless you specifically want the portable zip version. If you use the zip, extract it first and keep the extracted folder together.
+For v1.3.0, Windows is distributed as the installer.
 
 ### Linux x64
 
@@ -84,8 +84,14 @@ To continue:
 2. Paste a Spotify track link into the text box.
 3. Click **Preview Song Details**.
 4. Check that the title, artist, and album look right.
-5. Click **Download**.
+5. Click **Download Song**.
 6. Open the finished MP3 from your selected output folder.
+
+## App Updates
+
+myMusic includes a **Check For App Updates** button.
+
+On Windows, myMusic downloads the newer installer and starts it for you. On Linux, myMusic downloads the newer archive and tells you to install it manually by replacing the extracted app folder.
 
 ## Known Issue: YouTube Bot Check
 
@@ -113,7 +119,7 @@ For a single Spotify track link, myMusic:
 - Searches YouTube Music and regular YouTube for matching results.
 - Downloads the selected audio.
 - Converts it to MP3.
-- Adds basic title, artist, and album tags.
+- Adds title, artist, album, and cover artwork tags when available.
 - Saves the MP3 to your selected output folder.
 
 ## Where The Processing Happens
@@ -130,5 +136,4 @@ GitHub Release page -> download release file -> install or extract myMusic -> ru
 
 - Playlist downloads.
 - Album downloads.
-- Embedded cover artwork.
 - A built-in workaround for occasional YouTube bot checks.
