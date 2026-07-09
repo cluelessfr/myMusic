@@ -15,6 +15,7 @@ app.title("myMusic")
 app.geometry("500x590")
 
 selected_output_folder = load_download_folder()
+loaded_tracks = []
 UPDATE_STATUS: dict[str, Any] | None = None
 UPDATE_CANCEL_EVENT: threading.Event | None = None
 
@@ -40,19 +41,52 @@ def progress_update(message, progress):
     app.after(0, update_status)
 
 
+def render_track_list():
+    for widget in track_list_frame.winfo_children():
+        widget.destroy()
+
+    for track in loaded_tracks:
+        row_frame = ctk.CTkFrame(track_list_frame, corner_radius=6, border_width=1)
+        row_frame.grid_columnconfigure(0, weight=1)
+        row_frame.grid_columnconfigure(1, weight=0)
+        title_label_row = ctk.CTkLabel(row_frame, text=track['title'], wraplength=280)
+        artist_album_label_row = ctk.CTkLabel(row_frame, text=f"{', '.join(track['artists'])} - {track['album']}", wraplength=280)
+        status_label_row = ctk.CTkLabel(row_frame, text=track['status'], width=70, corner_radius=5)
+
+        row_frame.pack(padx=6, pady=4, fill="x")
+        title_label_row.grid(column=0, row=0, sticky="w", padx=10, pady=4)
+        artist_album_label_row.grid(column=0, row=1, sticky="w", padx=10, pady=4)
+        status_label_row.grid(column=1, row=0, sticky="e", padx=10, pady=8)
+
+
 def preview(link):
     try:
         result = preview_metadata(link)
 
         def show_preview():
+            global loaded_tracks
+
             if not result["ok"]:
                 status_label.configure(text="Error")
                 path_label.configure(text=result["error"], wraplength=440)
                 return
 
-            title_label.configure(text=f"Title: {result['title']}")
-            artist_label.configure(text=f"Artist(s): {', '.join(result['artists'])}")
-            album_label.configure(text=f"Album: {result['album']}")
+            title = result['title']
+            artists = result['artists']
+            album = result['album']
+
+            track_dict = {
+                "title": title,
+                "artists": artists,
+                "album": album,
+                "status": "Ready",
+                "metadata": result,
+            }
+
+            loaded_tracks.clear()
+            loaded_tracks.append(track_dict)
+
+            render_track_list()
 
         # noinspection PyTypeChecker
         app.after(0, show_preview)
@@ -88,9 +122,6 @@ def start_preview():
     set_button_state("disabled")
     status_label.configure(text="")
     path_label.configure(text="")
-    title_label.configure(text="Title:")
-    artist_label.configure(text="Artist(s):")
-    album_label.configure(text="Album:")
 
     threading.Thread(target=preview, args=(link,), daemon=True).start()
 
@@ -249,14 +280,12 @@ def start_download():
 
 
 link_entry = ctk.CTkEntry(app, placeholder_text="Paste Spotify Link")
+track_list_frame = ctk.CTkScrollableFrame(app, width=450, height=170)
 choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_download_folder)
 folder_label = ctk.CTkLabel(app, text=f"Save to: {selected_output_folder}", wraplength=440)
 status_label = ctk.CTkLabel(app, text="")
 progress_bar = ctk.CTkProgressBar(app, orientation="horizontal", width=450, height=20, corner_radius=5)
 progress_bar.set(0)
-title_label = ctk.CTkLabel(app, text="Title:")
-artist_label = ctk.CTkLabel(app, text="Artist(s):")
-album_label = ctk.CTkLabel(app, text="Album:")
 path_label = ctk.CTkLabel(app, text="", wraplength=440)
 preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
 update_button = ctk.CTkButton(app, text="Check For App Updates", command=start_update_check)
@@ -264,9 +293,7 @@ download_button = ctk.CTkButton(app, text="Download Song", command=start_downloa
 
 link_entry.pack(padx=20, pady=20, fill="x")
 preview_button.pack(pady=10)
-title_label.pack(pady=10)
-artist_label.pack(pady=10)
-album_label.pack(pady=10)
+track_list_frame.pack(pady=10, padx=20, fill="x")
 choose_folder_button.pack(pady=5)
 folder_label.pack(pady=5)
 download_button.pack(pady=10)
