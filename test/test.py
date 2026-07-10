@@ -46,6 +46,11 @@ def test_candidate_ranking():
         "artists": ["Kendrick Lamar", "Zacari"],
     }
 
+    test2_metadata = {
+        "title": "feat. Liberty",
+        "artists": ["Budman"],
+    }
+
     fake_candidates = [
         {"title": "Blinding Lights cover karaoke", "url": "bad", "source": "youtube_music"},
         {"title": "Blinding Lights The Weeknd Official Audio", "url": "good", "source": "youtube_music"},
@@ -55,14 +60,22 @@ def test_candidate_ranking():
         {"title": "Kendrick Lamar - Love. ft. Zacari", "url": "bad", "source": "youtube_music"},
     ]
 
+    test2_candidates = [
+        {"title": "Budman - Completely Different Song Official Audio", "url": "bad", "source": "youtube_music"}
+    ]
+
     ranked_candidates = rank_candidates(fake_metadata, fake_candidates)
     scored_candidates = score_candidates(fake_metadata, fake_candidates)
 
     test_candidates_scored = score_candidates(test_metadata, test_candidates)
 
+    test2_candidates_scored = score_candidates(test2_metadata, test2_candidates)
+
     assert title_normalizer(test_candidates[0]["title"]) == "kendrick lamar love ft zacari"
     assert spotify_base_title(test_metadata["title"]) == "love"
     assert test_candidates_scored[0][1] >= 3
+
+    assert test2_candidates_scored[0][1] < 3
 
     ytm_metadata = {
         "title": "Levitating",

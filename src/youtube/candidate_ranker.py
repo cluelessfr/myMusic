@@ -74,8 +74,9 @@ def score_candidate(metadata, candidate):
         if word not in lower_title:
             checked_words.append(word)
 
-    if normalized_title in normalized_candidate:
-        score += 1
+    if normalized_title:
+        if normalized_title in normalized_candidate:
+            score += 1
 
     if lower_candidate_title == lower_title:
         score += 1
