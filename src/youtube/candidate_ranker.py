@@ -1,3 +1,30 @@
+import re
+
+def title_normalizer(title):
+    lower_title = title.lower()
+
+    replace_text = r'!|"|\#|\$|%|\&|\'|\(|\)|\*|\+|,|\-|\.|\/|:|;|<|=|>|\?|@|\[|\\|\]|\^|_|`|\{|\|\}|\~'
+    punc_replaced = re.sub(replace_text, " ", lower_title)
+
+    normalized_title = " ".join(punc_replaced.split())
+
+    return normalized_title
+
+
+def spotify_base_title(input_title):
+    parenthesis_remove = r"\s*\((?:feat\.?|ft\.?|featuring)\s+[^)]*\)"
+    feat_titles = r"\s*(?:[;,-]\s*)?(?:feat\.?|ft\.?|featuring)\s+.*$"
+    lower_input = input_title.lower()
+    parenthesis_removed = re.sub(parenthesis_remove, "", lower_input)
+    feat_removed = re.sub(feat_titles, "", parenthesis_removed)
+
+    feat_removed_title = " ".join(feat_removed.split())
+
+    normalized_title = title_normalizer(feat_removed_title)
+
+    return normalized_title
+
+
 def score_candidate(metadata, candidate):
     title = metadata['title']
     artists = metadata['artists']
@@ -8,7 +35,9 @@ def score_candidate(metadata, candidate):
 
     score = 0
     lower_candidate_title = candidate_title.lower()
+    normalized_candidate = title_normalizer(candidate_title)
     lower_title = title.lower()
+    normalized_title = spotify_base_title(title)
     metadata_text = lower_title
 
     for artist in artists:
@@ -37,7 +66,7 @@ def score_candidate(metadata, candidate):
         "parody",
     ]
 
-    if lower_title in lower_candidate_title:
+    if normalized_title in normalized_candidate:
         score += 1
 
     if lower_candidate_title == lower_title:

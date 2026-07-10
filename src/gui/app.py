@@ -12,7 +12,7 @@ import threading
 
 app = ctk.CTk()
 app.title("myMusic")
-app.geometry("500x590")
+app.geometry("500x660")
 
 selected_output_folder = load_download_folder()
 loaded_tracks = []
@@ -45,18 +45,38 @@ def render_track_list():
     for widget in track_list_frame.winfo_children():
         widget.destroy()
 
+    num_tracks = len(loaded_tracks)
+
+    if num_tracks == 1:
+        queue_label.configure(text=f"Queue: {len(loaded_tracks)} track")
+    else:
+        queue_label.configure(text=f"Queue: {len(loaded_tracks)} tracks")
+
     for track in loaded_tracks:
         row_frame = ctk.CTkFrame(track_list_frame, corner_radius=6, border_width=1)
         row_frame.grid_columnconfigure(0, weight=1)
         row_frame.grid_columnconfigure(1, weight=0)
         title_label_row = ctk.CTkLabel(row_frame, text=track['title'], wraplength=280)
         artist_album_label_row = ctk.CTkLabel(row_frame, text=f"{', '.join(track['artists'])} - {track['album']}", wraplength=280)
-        status_label_row = ctk.CTkLabel(row_frame, text=track['status'], width=70, corner_radius=5)
+        status_label_row = ctk.CTkLabel(row_frame, text=track['status'], width=100, corner_radius=5, height=28)
 
         row_frame.pack(padx=6, pady=4, fill="x")
         title_label_row.grid(column=0, row=0, sticky="w", padx=10, pady=4)
         artist_album_label_row.grid(column=0, row=1, sticky="w", padx=10, pady=4)
         status_label_row.grid(column=1, row=0, sticky="e", padx=10, pady=8)
+
+        status = track['status']
+
+        if status == "Ready":
+            status_label_row.configure(fg_color="#6B7280", text_color="white")
+        elif status == "Downloading":
+            status_label_row.configure(fg_color="#2563EB", text_color="white")
+        elif status == "Done":
+            status_label_row.configure(fg_color="#16A34A", text_color="white")
+        elif status == "Failed":
+            status_label_row.configure(fg_color="#DC2626", text_color="white")
+        else:
+            status_label_row.configure(fg_color="#6B7280", text_color="white")
 
 
 def preview(link):
@@ -81,6 +101,7 @@ def preview(link):
                 "album": album,
                 "status": "Ready",
                 "metadata": result,
+                "spotify_link": link,
             }
 
             loaded_tracks.clear()
@@ -240,13 +261,22 @@ def start_update_check():
 
 def run_download(link, output_folder):
     try:
-        result = download_song_from_spotify_link(link, output_folder, progress_update)
+        if loaded_tracks:
+            result = download_song_from_spotify_link(loaded_tracks[0]['spotify_link'], output_folder, progress_update)
+        else:
+            result = download_song_from_spotify_link(link, output_folder, progress_update)
 
         def check_ok():
             if not result["ok"]:
+                if loaded_tracks:
+                    loaded_tracks[0]['status'] = "Failed"
+                    render_track_list()
                 status_label.configure(text="Error")
                 path_label.configure(text=result["error"], wraplength=440)
             else:
+                if loaded_tracks:
+                    loaded_tracks[0]['status'] = "Done"
+                    render_track_list()
                 status_label.configure(text="Download Complete")
                 path_label.configure(text=f"Downloaded to: {result['downloaded_path']}", wraplength=440)
 
@@ -257,6 +287,9 @@ def run_download(link, output_folder):
         error_message = str(error)
 
         def check_exception():
+            if loaded_tracks:
+                loaded_tracks[0]['status'] = "Failed"
+                render_track_list()
             status_label.configure(text="Error")
             path_label.configure(text=error_message, wraplength=440)
         # noinspection PyTypeChecker
@@ -276,10 +309,15 @@ def start_download():
     path_label.configure(text="")
     progress_bar.set(0)
 
+    if loaded_tracks:
+        loaded_tracks[0]['status'] = "Downloading"
+        render_track_list()
+
     threading.Thread(target=run_download, args=(link, output_folder), daemon=True).start()
 
 
 link_entry = ctk.CTkEntry(app, placeholder_text="Paste Spotify Link")
+queue_label = ctk.CTkLabel(app, text="Queue: 0 tracks", font=ctk.CTkFont(size=14, weight="bold"))
 track_list_frame = ctk.CTkScrollableFrame(app, width=450, height=170)
 choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_download_folder)
 folder_label = ctk.CTkLabel(app, text=f"Save to: {selected_output_folder}", wraplength=440)
@@ -293,7 +331,8 @@ download_button = ctk.CTkButton(app, text="Download Song", command=start_downloa
 
 link_entry.pack(padx=20, pady=20, fill="x")
 preview_button.pack(pady=10)
-track_list_frame.pack(pady=10, padx=20, fill="x")
+queue_label.pack(pady=10, padx=20)
+track_list_frame.pack(pady=10, padx=20, fill="x", anchor="w")
 choose_folder_button.pack(pady=5)
 folder_label.pack(pady=5)
 download_button.pack(pady=10)

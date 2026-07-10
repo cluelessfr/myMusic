@@ -1,5 +1,5 @@
 from src.metadata_providers.metadata_resolver import validate_link_get_metadata
-from src.youtube.candidate_ranker import rank_candidates, score_candidates
+from src.youtube.candidate_ranker import rank_candidates, score_candidates, title_normalizer, spotify_base_title
 from unittest.mock import patch
 
 test_cases = [
@@ -41,13 +41,28 @@ def test_candidate_ranking():
         "artists": ["The Weeknd"],
     }
 
+    test_metadata = {
+        "title": "LOVE. FEAT. ZACARI.",
+        "artists": ["Kendrick Lamar", "Zacari"],
+    }
+
     fake_candidates = [
         {"title": "Blinding Lights cover karaoke", "url": "bad", "source": "youtube_music"},
         {"title": "Blinding Lights The Weeknd Official Audio", "url": "good", "source": "youtube_music"},
     ]
 
+    test_candidates = [
+        {"title": "Kendrick Lamar - Love. ft. Zacari", "url": "bad", "source": "youtube_music"},
+    ]
+
     ranked_candidates = rank_candidates(fake_metadata, fake_candidates)
     scored_candidates = score_candidates(fake_metadata, fake_candidates)
+
+    test_candidates_scored = score_candidates(test_metadata, test_candidates)
+
+    assert title_normalizer(test_candidates[0]["title"]) == "kendrick lamar love ft zacari"
+    assert spotify_base_title(test_metadata["title"]) == "love"
+    assert test_candidates_scored[0][1] >= 3
 
     ytm_metadata = {
         "title": "Levitating",
