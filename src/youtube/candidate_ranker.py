@@ -64,7 +64,15 @@ def score_candidate(metadata, candidate):
         "live from",
         "live at",
         "parody",
+        "remix",
+        "remaster",
     ]
+
+    checked_words = []
+
+    for word in bad_words:
+        if word not in lower_title:
+            checked_words.append(word)
 
     if normalized_title in normalized_candidate:
         score += 1
@@ -88,7 +96,7 @@ def score_candidate(metadata, candidate):
     if "official audio" in lower_candidate_title:
         score += 1
 
-    for word in bad_words:
+    for word in checked_words:
         if word in lower_candidate_title and word not in metadata_text:
             score -= 2
 
