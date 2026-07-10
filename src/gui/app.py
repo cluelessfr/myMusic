@@ -12,7 +12,7 @@ import threading
 
 app = ctk.CTk()
 app.title("myMusic")
-app.geometry("500x660")
+app.geometry("500x720")
 
 selected_output_folder = load_download_folder()
 loaded_tracks = []
@@ -143,6 +143,9 @@ def start_preview():
     set_button_state("disabled")
     status_label.configure(text="")
     path_label.configure(text="")
+
+    loaded_tracks.clear()
+    render_track_list()
 
     threading.Thread(target=preview, args=(link,), daemon=True).start()
 
