@@ -141,3 +141,9 @@ GitHub Release page -> download release file -> install or extract myMusic -> ru
 - Playlist downloads.
 - Album downloads.
 - A built-in workaround for occasional YouTube bot checks.
+
+## License
+
+The myMusic source code is available under the [MIT License](LICENSE). The software is provided "as is," without warranty of any kind.
+
+The MIT License applies to the source code. The educational-use and download-rights notice above describes the intended responsible use of myMusic: use it only to download content that you own or otherwise have the legal right and permission to download.
