@@ -6,6 +6,10 @@ myMusic is a desktop app that uses a Spotify track link to find a matching song 
 
 Paste a Spotify track link, preview the song details, then download the matched track as an MP3.
 
+## Educational Use And Download Rights
+
+myMusic is provided for educational purposes only. Use it only to download content that you own or otherwise have the legal right and permission to download. You are responsible for following applicable copyright laws and the terms of service of the content platforms you use.
+
 ## Platform Support
 
 | Platform | Status | Download |
