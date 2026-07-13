@@ -16,7 +16,7 @@ myMusic is provided for educational purposes only. Use it only to download conte
 | --- | --- | --- |
 | Windows | Supported | `myMusic-v1.4.0-windows-setup.exe` from GitHub Releases |
 | Linux x64 | Experimental | `myMusic-v1.4.0-linux-x64.tar.gz` from GitHub Releases |
-| Linux ARM64 | Experimental | `myMusic-v1.3.0-linux-arm64.tar.gz` from GitHub Releases |
+| Linux ARM64 | Experimental | `myMusic-v1.4.0-linux-arm64.tar.gz` from GitHub Releases |
 | macOS | Not supported yet | N/A |
 
 ## Download And Install
@@ -57,7 +57,7 @@ cd myMusic
 
 The Linux ARM64 build is experimental and was tested on 64-bit Raspberry Pi OS. It is for ARM64 Linux devices such as a 64-bit Raspberry Pi, not typical Intel or AMD Linux PCs.
 
-1. Download `myMusic-v1.3.0-linux-arm64.tar.gz`.
+1. Download `myMusic-v1.4.0-linux-arm64.tar.gz`.
 2. Extract the downloaded archive.
 3. Open the extracted `myMusic` folder.
 4. Run the `myMusic` executable inside that folder.
@@ -65,7 +65,7 @@ The Linux ARM64 build is experimental and was tested on 64-bit Raspberry Pi OS. 
 From a terminal, you can run:
 
 ```text
-tar -xzf myMusic-v1.3.0-linux-arm64.tar.gz
+tar -xzf myMusic-v1.4.0-linux-arm64.tar.gz
 cd myMusic
 ./myMusic
 ```
