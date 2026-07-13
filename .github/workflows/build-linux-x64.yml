@@ -57,11 +57,11 @@ jobs:
 
       - name: Create Linux x64 archive
         run: |
-          tar -czf myMusic-v1.3.0-linux-x64.tar.gz -C dist myMusic
-          sha256sum myMusic-v1.3.0-linux-x64.tar.gz
+          tar -czf myMusic-v1.4.0-linux-x64.tar.gz -C dist myMusic
+          sha256sum myMusic-v1.4.0-linux-x64.tar.gz
 
       - name: Upload Linux x64 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: myMusic-v1.3.0-linux-x64
-          path: myMusic-v1.3.0-linux-x64.tar.gz
+          name: myMusic-v1.4.0-linux-x64
+          path: myMusic-v1.4.0-linux-x64.tar.gz
