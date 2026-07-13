@@ -85,27 +85,28 @@ def preview(link):
 
         def show_preview():
             global loaded_tracks
-
-            if not result["ok"]:
-                status_label.configure(text="Error")
-                path_label.configure(text=result["error"], wraplength=440)
-                return
-
-            title = result['title']
-            artists = result['artists']
-            album = result['album']
-
-            track_dict = {
-                "title": title,
-                "artists": artists,
-                "album": album,
-                "status": "Ready",
-                "metadata": result,
-                "spotify_link": link,
-            }
-
             loaded_tracks.clear()
-            loaded_tracks.append(track_dict)
+
+            for track in result:
+                if not track["ok"]:
+                    status_label.configure(text="Error")
+                    path_label.configure(text=track["error"], wraplength=440)
+                    return
+
+                title = track['title']
+                artists = track['artists']
+                album = track['album']
+
+                track_dict = {
+                    "title": title,
+                    "artists": artists,
+                    "album": album,
+                    "status": "Ready",
+                    "metadata": track,
+                    "spotify_link": track["url"],
+                }
+
+                loaded_tracks.append(track_dict)
 
             render_track_list()
 
@@ -264,24 +265,30 @@ def start_update_check():
 
 def run_download(link, output_folder):
     try:
+        results = []
+
         if loaded_tracks:
-            result = download_song_from_spotify_link(loaded_tracks[0]['spotify_link'], output_folder, progress_update)
+            for track in loaded_tracks:
+                result = download_song_from_spotify_link(track['spotify_link'], output_folder, progress_update)
+                results.extend(result)
         else:
-            result = download_song_from_spotify_link(link, output_folder, progress_update)
+            results = download_song_from_spotify_link(link, output_folder, progress_update)
 
         def check_ok():
-            if not result["ok"]:
-                if loaded_tracks:
-                    loaded_tracks[0]['status'] = "Failed"
-                    render_track_list()
-                status_label.configure(text="Error")
-                path_label.configure(text=result["error"], wraplength=440)
+            for track_, result_ in zip(loaded_tracks, results):
+                track_["status"] = "Done" if result_["ok"] else "Failed"
+
+            render_track_list()
+
+            successful_count = sum(_result["ok"] for _result in results)
+            failed_count = len(results) - successful_count
+
+            if failed_count > 0:
+                status_label.configure(text=f"Failed to download {failed_count} songs")
+                path_label.configure(text=f"Successfully downloaded {successful_count} of {len(results)} to: {selected_output_folder}", wraplength=440)
             else:
-                if loaded_tracks:
-                    loaded_tracks[0]['status'] = "Done"
-                    render_track_list()
-                status_label.configure(text="Download Complete")
-                path_label.configure(text=f"Downloaded to: {result['downloaded_path']}", wraplength=440)
+                status_label.configure(text="")
+                path_label.configure(text="Successfully downloaded all songs")
 
         # noinspection PyTypeChecker
         app.after(0, check_ok)
@@ -291,8 +298,9 @@ def run_download(link, output_folder):
 
         def check_exception():
             if loaded_tracks:
-                loaded_tracks[0]['status'] = "Failed"
-                render_track_list()
+                for song in loaded_tracks:
+                    song['status'] = "Failed"
+                    render_track_list()
             status_label.configure(text="Error")
             path_label.configure(text=error_message, wraplength=440)
         # noinspection PyTypeChecker
@@ -313,8 +321,9 @@ def start_download():
     progress_bar.set(0)
 
     if loaded_tracks:
-        loaded_tracks[0]['status'] = "Downloading"
-        render_track_list()
+        for track in loaded_tracks:
+            track['status'] = "Downloading"
+            render_track_list()
 
     threading.Thread(target=run_download, args=(link, output_folder), daemon=True).start()
 

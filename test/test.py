@@ -1,4 +1,4 @@
-from src.metadata_providers.metadata_resolver import validate_link_get_metadata
+from src.metadata_providers.metadata_resolver import validate_link_get_metadata_track
 from src.youtube.candidate_ranker import rank_candidates, score_candidates, title_normalizer, spotify_base_title
 from unittest.mock import patch
 
@@ -10,7 +10,7 @@ test_cases = [
 ]
 
 def run_case(case):
-    result = validate_link_get_metadata(case["input"])
+    result = validate_link_get_metadata_track(case["input"])[0]
     status = result["status"]
     print(f"Expected result: {case['expected']}      Achieved result: {status}")
 
@@ -23,7 +23,7 @@ def test_spotify_oembed_fallback():
 
     with patch("src.metadata_providers.metadata_resolver.scrape_spotify_metadata", return_value=None), \
             patch("src.metadata_providers.metadata_resolver.fetch_spotify_oembed", return_value=fake_oembed_metadata):
-        result = validate_link_get_metadata("https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC")
+        result = validate_link_get_metadata_track("https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC")[0]
 
     metadata = result["metadata"]
 
