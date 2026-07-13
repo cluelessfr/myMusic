@@ -12,6 +12,9 @@ def add_metadata(file_path, metadata):
     track["artist"] = artists
     track["album"] = metadata["album"]
     track["title"] = metadata["title"]
+    release_date = metadata.get("release_date")
+    if release_date:
+        track["date"] = metadata["release_date"]
 
     track.save()
 

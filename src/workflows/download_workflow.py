@@ -74,7 +74,7 @@ def get_metadata_type(spotify_link):
     return result
 
 
-def download_song_from_spotify_link(spotify_link, output_folder=None, progress_callback=None):
+def download_song_from_spotify_link(spotify_link, output_folder=None, progress_callback=None, track_status_callback=None):
     limit = 3
     results = []
 
@@ -84,14 +84,21 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
     result = get_metadata_type(spotify_link)
 
     for i, track in enumerate(result, start=1):
+        if track_status_callback:
+            track_status_callback(i-1, "Downloading")
+
         if not track["ok"]:
             results.append(track)
+
+            if track_status_callback:
+                track_status_callback(i-1, "Failed")
+
             continue
 
         metadata = track["metadata"]
 
         if progress_callback:
-            progress_callback("Searching for Candidates...", (i/len(result)))
+            progress_callback("Searching for Candidates...", ((i - 1 + 0.25)/len(result)))
 
         ytm_candidates = get_youtube_music_candidates(metadata, limit)
         yt_candidates = get_youtube_candidates(metadata, limit)
@@ -102,6 +109,10 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
         if not scored_candidates:
             fail = make_download_failure(status="no_youtube_results", error="No YouTube candidates found", metadata=metadata)
             results.append(fail)
+
+            if track_status_callback:
+                track_status_callback(i-1, "Failed")
+
             continue
 
         downloaded_path = None
@@ -116,7 +127,7 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
 
             if candidate_score >= minimum_score:
                 if progress_callback:
-                    progress_callback(f"Trying Match {index} of {length_of_list} for song {i}", (i/len(result)))
+                    progress_callback(f"Trying Match {index} of {length_of_list} for song {i}", ((i - 1 + 0.5)/len(result)))
                 try:
                     downloaded_path = download_audio(candidate_dict, metadata, output_folder)
 
@@ -136,12 +147,19 @@ def download_song_from_spotify_link(spotify_link, output_folder=None, progress_c
         if not downloaded_path:
             fail = make_download_failure(status="no_valid_matches", error=format_download_error(candidate_error), metadata=metadata, technical_error=candidate_error)
             results.append(fail)
+
+            if track_status_callback:
+                track_status_callback(i-1, "Failed")
+
             continue
 
         if progress_callback:
-            progress_callback("Adding Metadata...", (i/len(result)))
+            progress_callback("Adding Metadata...", ((i - 1 + 0.75)/len(result)))
 
         add_metadata(downloaded_path, metadata)
+
+        if track_status_callback:
+            track_status_callback(i-1, "Done")
 
         success = make_download_success(metadata=metadata, candidate=successful_candidate, downloaded_path=downloaded_path)
         results.append(success)

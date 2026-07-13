@@ -263,16 +263,23 @@ def start_update_check():
     threading.Thread(target=update_check_helper, daemon=True).start()
 
 
+def update_track_status(track_index, new_status):
+    def update_ui():
+        loaded_tracks[track_index]["status"] = new_status
+        render_track_list()
+
+    # noinspection PyTypeChecker
+    app.after(0, update_ui)
+
+
 def run_download(link, output_folder):
     try:
-        results = []
-
-        if loaded_tracks:
-            for track in loaded_tracks:
-                result = download_song_from_spotify_link(track['spotify_link'], output_folder, progress_update)
-                results.extend(result)
-        else:
-            results = download_song_from_spotify_link(link, output_folder, progress_update)
+        results = download_song_from_spotify_link(
+            link,
+            output_folder,
+            progress_update,
+            update_track_status,
+        )
 
         def check_ok():
             for track_, result_ in zip(loaded_tracks, results):
@@ -319,11 +326,6 @@ def start_download():
     set_button_state("disabled", include_folder_button=True)
     path_label.configure(text="")
     progress_bar.set(0)
-
-    if loaded_tracks:
-        for track in loaded_tracks:
-            track['status'] = "Downloading"
-            render_track_list()
 
     threading.Thread(target=run_download, args=(link, output_folder), daemon=True).start()
 
