@@ -28,8 +28,8 @@ jobs:
           mkdir ffmpeg-extract
           tar -xJf ffmpeg-linux-arm64.tar.xz -C ffmpeg-extract
           cp "$(find ffmpeg-extract -type f -name ffmpeg -perm -111 | head -n 1)" tools/ffmpeg/bin/ffmpeg
-          find ffmpeg-extract -type f \( -iname "GPL*" -o -iname "LICENSE*" \) -print -quit | xargs -r -I{} cp "{}" tools/ffmpeg/
-          find ffmpeg-extract -type f -iname "README*" -print -quit | xargs -r -I{} cp "{}" tools/ffmpeg/
+          find ffmpeg-extract -type f \( -iname "GPL*" -o -iname "LICENSE*" \) -print -quit | xargs -r -I{} cp "{}" tools/ffmpeg/LICENSE
+          find ffmpeg-extract -type f -iname "README*" -print -quit | xargs -r -I{} cp "{}" tools/ffmpeg/README.txt
           chmod +x tools/ffmpeg/bin/ffmpeg
 
       - name: Download bundled Deno
