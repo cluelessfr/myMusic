@@ -5,7 +5,12 @@ a = Analysis(
     ['src\\gui\\app.py'],
     pathex=[],
     binaries=[],
-    datas=[('tools\\ffmpeg', 'tools\\ffmpeg'), ('tools\\deno', 'tools\\deno')],
+    datas=[
+        ('tools\\ffmpeg\\bin\\ffmpeg.exe', 'tools\\ffmpeg\\bin'),
+        ('tools\\ffmpeg\\LICENSE', 'tools\\ffmpeg'),
+        ('tools\\ffmpeg\\README.txt', 'tools\\ffmpeg'),
+        ('tools\\deno\\bin\\deno.exe', 'tools\\deno\\bin'),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

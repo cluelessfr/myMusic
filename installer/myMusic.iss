@@ -11,14 +11,22 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=..\release
 OutputBaseFilename=myMusic-v{#MyAppVersion}-windows-setup
-Compression=lzma2
-SolidCompression=yes
+Compression=lzma2/normal
+SolidCompression=no
+LZMANumBlockThreads=4
+LZMAUseSeparateProcess=yes
+CloseApplications=yes
+CloseApplicationsFilter=*.exe,*.dll
 WizardStyle=modern
 PrivilegesRequired=lowest
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Files]
 Source: "..\dist\myMusic\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}"
+Type: filesandordirs; Name: "{localappdata}\{#MyAppName}"
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"; Flags: unchecked
@@ -29,4 +37,5 @@ Name: "{group}\Uninstall myMusic"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\myMusic"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch myMusic"; Flags: nowait postinstall
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait runasoriginaluser skipifnotsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch myMusic"; Flags: nowait postinstall runasoriginaluser skipifsilent

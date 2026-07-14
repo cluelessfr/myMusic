@@ -175,10 +175,8 @@ def update_download():
         if result["ok"]:
             path_label.configure(text=f"Downloaded to: {result['download_path']}", wraplength=440)
             if install_result["ok"]:
-                status_label.configure(text=install_result["message"])
-                update_button.configure(text="Check For App Updates", command=start_update_check)
-                # noinspection PyTypeChecker
-                app.after(1000, app.destroy)
+                app.destroy()
+                return
             else:
                 status_label.configure(text=install_result["message"])
                 update_button.configure(text="Check For App Updates", command=start_update_check)

@@ -28,7 +28,7 @@ def download_update_installer(download_url, asset_name, download_folder=None, pr
         canceled = False
 
         with open(temp_path, "wb") as file:
-            for chunk in download.iter_content(chunk_size=1024):
+            for chunk in download.iter_content(chunk_size=1048576):
                 if chunk:
                     if cancel_event is not None and cancel_event.is_set():
                         canceled = True
