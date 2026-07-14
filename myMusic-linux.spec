@@ -8,7 +8,6 @@ a = Analysis(
     datas=[
         ('tools/ffmpeg/bin/ffmpeg', 'tools/ffmpeg/bin'),
         ('tools/ffmpeg/LICENSE', 'tools/ffmpeg'),
-        ('tools/ffmpeg/README.txt', 'tools/ffmpeg'),
         ('tools/deno/bin/deno', 'tools/deno/bin'),
     ],
     hiddenimports=[],
