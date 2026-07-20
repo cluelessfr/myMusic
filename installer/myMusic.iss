@@ -36,6 +36,12 @@ Name: "{group}\myMusic"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\Uninstall myMusic"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\myMusic"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
+[Registry]
+Root: HKCU; Subkey: Software\Classes\mymusic; ValueType: string; ValueName: ""; ValueData: "URL: myMusic Protocol"; Flags: uninsdeletekey
+Root: HKCU; Subkey: Software\Classes\mymusic; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
+Root: HKCU; Subkey: Software\Classes\mymusic\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
+Root: HKCU; Subkey: Software\Classes\mymusic\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Flags: nowait runasoriginaluser skipifnotsilent
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch myMusic"; Flags: nowait postinstall runasoriginaluser skipifsilent

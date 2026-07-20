@@ -157,9 +157,11 @@
 
     function handleDownload(uris) {
         const selectedUri = uris[0];
+        const encodedUri = encodeURIComponent(selectedUri);
+        const protocolUri = `mymusic://download?uri=${encodedUri}`;
 
         console.log("[myMusic] Selected Spotify URI: ", selectedUri);
-        Spicetify.showNotification(`[myMusic] Selected ${selectedUri}`);
+        Spicetify.showNotification(`[myMusic] Selected ${protocolUri}`);
     }
 
     function handleNativeDownloadClick(event) {

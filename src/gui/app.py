@@ -4,10 +4,12 @@ from src.gui.settings import load_download_folder, save_download_folder
 from src.updater.update_checker import check_for_update
 from src.updater.installer_downloader import download_update_installer
 from src.updater.installer_runner import run_update_installer
+from src.integrations.parse_protocol_url import parse_protocol_arguments
 from tkinter import filedialog
 from typing import Any
 from pathlib import Path
 import threading
+import sys
 
 
 app = ctk.CTk()
@@ -18,6 +20,7 @@ selected_output_folder = load_download_folder()
 loaded_tracks = []
 UPDATE_STATUS: dict[str, Any] | None = None
 UPDATE_CANCEL_EVENT: threading.Event | None = None
+startup_spotify_uri = parse_protocol_arguments(sys.argv)
 
 
 def choose_download_folder():
@@ -79,7 +82,7 @@ def render_track_list():
             status_label_row.configure(fg_color="#6B7280", text_color="white")
 
 
-def preview(link):
+def preview(link, on_success=None):
     try:
         result = preview_metadata(link)
 
@@ -91,6 +94,9 @@ def preview(link):
                 if not track["ok"]:
                     status_label.configure(text="Error")
                     path_label.configure(text=track["error"], wraplength=440)
+
+                    set_button_state("normal")
+
                     return
 
                 title = track['title']
@@ -110,6 +116,11 @@ def preview(link):
 
             render_track_list()
 
+            if callable(on_success):
+                on_success()
+            else:
+                set_button_state("normal")
+
         # noinspection PyTypeChecker
         app.after(0, show_preview)
 
@@ -119,16 +130,10 @@ def preview(link):
         def show_error():
             status_label.configure(text="Error")
             path_label.configure(text=error_message, wraplength=440)
-
-        # noinspection PyTypeChecker
-        app.after(0, show_error)
-
-    finally:
-        def enable_buttons():
             set_button_state("normal")
 
         # noinspection PyTypeChecker
-        app.after(0, enable_buttons)
+        app.after(0, show_error)
 
 
 def set_button_state(state, include_folder_button=False):
@@ -139,7 +144,7 @@ def set_button_state(state, include_folder_button=False):
         choose_folder_button.configure(state=state)
 
 
-def start_preview():
+def start_preview(on_success=None):
     link = link_entry.get()
     set_button_state("disabled")
     status_label.configure(text="")
@@ -148,7 +153,7 @@ def start_preview():
     loaded_tracks.clear()
     render_track_list()
 
-    threading.Thread(target=preview, args=(link,), daemon=True).start()
+    threading.Thread(target=preview, args=(link, on_success), daemon=True).start()
 
 
 def update_download():
@@ -329,6 +334,8 @@ def start_download():
 
 
 link_entry = ctk.CTkEntry(app, placeholder_text="Paste Spotify Link")
+if startup_spotify_uri is not None:
+    link_entry.insert(0, startup_spotify_uri)
 queue_label = ctk.CTkLabel(app, text="Queue: 0 tracks", font=ctk.CTkFont(size=14, weight="bold"))
 track_list_frame = ctk.CTkScrollableFrame(app, width=450, height=170)
 choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_download_folder)
@@ -352,5 +359,9 @@ status_label.pack(pady=10)
 progress_bar.pack(pady=10)
 path_label.pack(pady=10)
 update_button.pack(pady=10)
+
+if startup_spotify_uri:
+    # noinspection PyTypeChecker
+    app.after(0, start_preview, start_download)
 
 app.mainloop()

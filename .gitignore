@@ -17,8 +17,8 @@ __pycache__/
 *.log
 data/downloads/
 docs/
-dist/
-build/
+dist-master-backup/
+build-master-backup/
 myMusic-v*-windows.zip
 myMusic-v*-windows-setup.exe
 release/

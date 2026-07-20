@@ -31,4 +31,13 @@ def parse_protocol_url(protocol_url):
 
 
 def parse_protocol_arguments(arguments):
-    pass
+    if not isinstance(arguments, (list, tuple)):
+        return None
+
+    for item in arguments[1:]:
+        parsed_url = parse_protocol_url(item)
+
+        if parsed_url is not None:
+            return parsed_url
+
+    return None

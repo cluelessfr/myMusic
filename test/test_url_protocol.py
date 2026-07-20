@@ -1,5 +1,5 @@
 import unittest
-from src.integrations.parse_protocol_url import parse_protocol_url
+from src.integrations.parse_protocol_url import parse_protocol_url, parse_protocol_arguments
 
 
 class ProtocolUrlTests(unittest.TestCase):
@@ -33,3 +33,14 @@ class ProtocolUrlTests(unittest.TestCase):
         actual_uri = parse_protocol_url(protocol_url)
 
         self.assertEqual(expected_uri, actual_uri)
+
+    def test_protocol_arguments_returns_spotify_uri(self):
+        arguments = [
+            "myMusic.exe",
+            "mymusic://download?uri=spotify%3Atrack%3A4uLU6hMCjMI75M1A2tKUQC",
+        ]
+        expected_uri = "spotify:track:4uLU6hMCjMI75M1A2tKUQC"
+
+        actual_uri = parse_protocol_arguments(arguments)
+
+        self.assertEqual(actual_uri, expected_uri)
