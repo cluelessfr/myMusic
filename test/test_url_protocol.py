@@ -1,5 +1,5 @@
 import unittest
-from src.integrations.parse_protocol_url import parse_protocol_url, parse_protocol_arguments
+from src.integrations.parse_protocol_url import parse_protocol_url, parse_protocol_arguments, is_supported_spotify_uri
 
 
 class ProtocolUrlTests(unittest.TestCase):
@@ -44,3 +44,19 @@ class ProtocolUrlTests(unittest.TestCase):
         actual_uri = parse_protocol_arguments(arguments)
 
         self.assertEqual(actual_uri, expected_uri)
+
+    def test_supported_spotify_uri_accepts_album(self):
+        expected_uri = "spotify:album:6TJmQnO44YE5BtTxH8pop1"
+
+        result = is_supported_spotify_uri(expected_uri)
+
+        self.assertEqual(result, True)
+
+    def test_supported_spotify_uri_rejects_artist(self):
+        self.assertFalse(is_supported_spotify_uri("spotify:artist:6TJmQnO44YE5BtTxH8pop1"))
+
+    def test_supported_spotify_uri_rejects_malformed_id(self):
+        self.assertFalse(is_supported_spotify_uri("spotify:album:6TJmQnO44Y5t8pop1"))
+
+    def test_supported_spotify_uri_rejects_non_string(self):
+        self.assertFalse(is_supported_spotify_uri(None))

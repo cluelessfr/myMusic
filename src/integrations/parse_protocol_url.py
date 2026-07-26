@@ -2,6 +2,19 @@ import re
 from urllib.parse import urlparse, parse_qs
 
 
+SUPPORTED_SPOTIFY_URI_PATTERN = re.compile(r"^spotify:(track|playlist|album):[a-zA-Z0-9]{22}$")
+
+
+def is_supported_spotify_uri(uri):
+    if not isinstance(uri, str):
+        return False
+
+    if SUPPORTED_SPOTIFY_URI_PATTERN.fullmatch(uri) is None:
+        return False
+
+    return True
+
+
 def parse_protocol_url(protocol_url):
     if not isinstance(protocol_url, str):
         return None
@@ -21,10 +34,9 @@ def parse_protocol_url(protocol_url):
     if not uri_values or len(uri_values) != 1:
         return None
 
-    pattern = r"^spotify:(track|playlist|album):[a-zA-Z0-9]{22}$"
     spotify_uri = uri_values[0]
 
-    if not re.fullmatch(pattern, spotify_uri):
+    if not is_supported_spotify_uri(spotify_uri):
         return None
 
     return spotify_uri

@@ -5,3 +5,8 @@ Pillow
 customtkinter
 spotifyscraper
 PyInstaller
+fastapi
+uvicorn
+httpx
+pystray
+pydantic
