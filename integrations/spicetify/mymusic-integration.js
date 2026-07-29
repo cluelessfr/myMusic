@@ -1,5 +1,6 @@
 (() => {
     let activeCollectionUri = null;
+    const API_BASE_URL = "http://127.0.0.1:18492/v1";
 
     function isSpicetifyReady() {
         return Boolean(
@@ -155,13 +156,25 @@
         observer.observe(document.body, {childList: true, subtree: true});
     }
 
-    function handleDownload(uris) {
+    async function handleDownload(uris) {
         const selectedUri = uris[0];
-        const encodedUri = encodeURIComponent(selectedUri);
-        const protocolUri = `mymusic://download?uri=${encodedUri}`;
 
-        console.log("[myMusic] Selected Spotify URI: ", selectedUri);
-        Spicetify.showNotification(`[myMusic] Selected ${protocolUri}`);
+        try{
+            const response = await fetch(API_BASE_URL + "/downloads", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({uri: selectedUri})});
+
+            if (!response.ok) {
+                throw new Error(`HTTP error: status: ${response.status}`);
+            }
+
+            const json = await response.json();
+            const requestId = json.request_id;
+
+            Spicetify.showNotification(`Download queued: ${requestId}`);
+        }
+        catch (error) {
+            console.error(`Request failed, myMusic integration unavailable: ${error}`);
+            Spicetify.showNotification(`myMusic integration unavailable`, true);
+        }
     }
 
     function handleNativeDownloadClick(event) {

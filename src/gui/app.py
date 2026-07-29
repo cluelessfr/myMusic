@@ -5,6 +5,7 @@ from src.updater.update_checker import check_for_update
 from src.updater.installer_downloader import download_update_installer
 from src.updater.installer_runner import run_update_installer
 from src.integrations.parse_protocol_url import parse_protocol_arguments
+from src.integrations.loopback_api import DownloadJob, DownloadJobStore, DownloadStatus, LoopbackServer
 from tkinter import filedialog
 from typing import Any
 from pathlib import Path
@@ -20,7 +21,10 @@ selected_output_folder = load_download_folder()
 loaded_tracks = []
 UPDATE_STATUS: dict[str, Any] | None = None
 UPDATE_CANCEL_EVENT: threading.Event | None = None
-startup_spotify_uri = parse_protocol_arguments(sys.argv)
+STARTUP_SPOTIFY_URI = parse_protocol_arguments(sys.argv)
+STORE = DownloadJobStore()
+WINDOW_SHOW_REQUESTS = threading.Event()
+SERVER = LoopbackServer(STORE, WINDOW_SHOW_REQUESTS)
 
 
 def choose_download_folder():
@@ -82,7 +86,7 @@ def render_track_list():
             status_label_row.configure(fg_color="#6B7280", text_color="white")
 
 
-def preview(link, on_success=None):
+def preview(link, on_success=None, on_error=None):
     try:
         result = preview_metadata(link)
 
@@ -95,7 +99,11 @@ def preview(link, on_success=None):
                     status_label.configure(text="Error")
                     path_label.configure(text=track["error"], wraplength=440)
 
-                    set_button_state("normal")
+                    if callable(on_error):
+                        on_error(track["error"])
+
+                    else:
+                        set_button_state("normal")
 
                     return
 
@@ -130,7 +138,12 @@ def preview(link, on_success=None):
         def show_error():
             status_label.configure(text="Error")
             path_label.configure(text=error_message, wraplength=440)
-            set_button_state("normal")
+
+            if callable(on_error):
+                on_error(error_message)
+
+            else:
+                set_button_state("normal")
 
         # noinspection PyTypeChecker
         app.after(0, show_error)
@@ -144,7 +157,7 @@ def set_button_state(state, include_folder_button=False):
         choose_folder_button.configure(state=state)
 
 
-def start_preview(on_success=None):
+def start_preview(on_success=None, on_error=None):
     link = link_entry.get()
     set_button_state("disabled")
     status_label.configure(text="")
@@ -153,7 +166,7 @@ def start_preview(on_success=None):
     loaded_tracks.clear()
     render_track_list()
 
-    threading.Thread(target=preview, args=(link, on_success), daemon=True).start()
+    threading.Thread(target=preview, args=(link, on_success, on_error), daemon=True).start()
 
 
 def update_download():
@@ -180,7 +193,7 @@ def update_download():
         if result["ok"]:
             path_label.configure(text=f"Downloaded to: {result['download_path']}", wraplength=440)
             if install_result["ok"]:
-                app.destroy()
+                shutdown_app()
                 return
             else:
                 status_label.configure(text=install_result["message"])
@@ -275,7 +288,7 @@ def update_track_status(track_index, new_status):
     app.after(0, update_ui)
 
 
-def run_download(link, output_folder):
+def run_download(link, output_folder, on_complete=None):
     try:
         results = download_song_from_spotify_link(
             link,
@@ -300,6 +313,9 @@ def run_download(link, output_folder):
                 status_label.configure(text="")
                 path_label.configure(text="Successfully downloaded all songs")
 
+            if callable(on_complete):
+                on_complete(successful_count, failed_count, None)
+
         # noinspection PyTypeChecker
         app.after(0, check_ok)
 
@@ -313,6 +329,9 @@ def run_download(link, output_folder):
                     render_track_list()
             status_label.configure(text="Error")
             path_label.configure(text=error_message, wraplength=440)
+
+            if callable(on_complete):
+                on_complete(0, len(loaded_tracks), error_message)
         # noinspection PyTypeChecker
         app.after(0, check_exception)
 
@@ -323,19 +342,72 @@ def run_download(link, output_folder):
         app.after(0, enable_buttons)
 
 
-def start_download():
+def start_download(on_complete=None):
     link = link_entry.get()
     output_folder = selected_output_folder
     set_button_state("disabled", include_folder_button=True)
     path_label.configure(text="")
     progress_bar.set(0)
 
-    threading.Thread(target=run_download, args=(link, output_folder), daemon=True).start()
+    threading.Thread(target=run_download, args=(link, output_folder, on_complete), daemon=True).start()
+
+
+def start_remote_download(job: DownloadJob):
+    link_entry.delete(0, "end")
+    link_entry.insert(0, job.uri)
+
+    def preview_success_callback():
+        STORE.update_active_job(job.request_id, DownloadStatus.DOWNLOADING)
+        start_download(download_completion_callback)
+
+    def preview_error_callback(error_message: str):
+        STORE.update_active_job(job.request_id, DownloadStatus.FAILED, failed_count=len(loaded_tracks), error=error_message)
+
+        set_button_state("normal", include_folder_button=True)
+
+    def download_completion_callback(successful_count: int, failed_count: int, error: str | None = None):
+        if failed_count == 0 and error is None:
+            terminal_status = DownloadStatus.COMPLETED
+            error_message = None
+        else:
+            terminal_status = DownloadStatus.FAILED
+
+            if error is None:
+                error_message = "Download Failed"
+            else:
+                error_message = error
+
+        STORE.update_active_job(job.request_id, terminal_status, successful_count=successful_count,
+                                failed_count=failed_count, error=error_message)
+
+    start_preview(preview_success_callback, preview_error_callback)
+
+
+def poll_loopback_requests():
+    try:
+        if WINDOW_SHOW_REQUESTS.is_set():
+            WINDOW_SHOW_REQUESTS.clear()
+            app.deiconify()
+            app.lift()
+
+        if preview_button.cget("state") == "normal":
+            job = STORE.take_next()
+
+            if job is not None:
+                start_remote_download(job)
+
+    finally:
+        app.after(100, poll_loopback_requests)
+
+
+def shutdown_app():
+    SERVER.stop()
+    app.destroy()
 
 
 link_entry = ctk.CTkEntry(app, placeholder_text="Paste Spotify Link")
-if startup_spotify_uri is not None:
-    link_entry.insert(0, startup_spotify_uri)
+if STARTUP_SPOTIFY_URI is not None:
+    link_entry.insert(0, STARTUP_SPOTIFY_URI)
 queue_label = ctk.CTkLabel(app, text="Queue: 0 tracks", font=ctk.CTkFont(size=14, weight="bold"))
 track_list_frame = ctk.CTkScrollableFrame(app, width=450, height=170)
 choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_download_folder)
@@ -360,7 +432,16 @@ progress_bar.pack(pady=10)
 path_label.pack(pady=10)
 update_button.pack(pady=10)
 
-if startup_spotify_uri:
+app.protocol("WM_DELETE_WINDOW", shutdown_app)
+
+try:
+    SERVER.start()
+    app.after(100, poll_loopback_requests)
+except RuntimeError:
+    status_label.configure(text="Spotify Integration Unavailable")
+    path_label.configure(text="Spotify Integration Unavailable")
+
+if STARTUP_SPOTIFY_URI:
     # noinspection PyTypeChecker
     app.after(0, start_preview, start_download)
 
