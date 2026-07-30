@@ -51,6 +51,11 @@ def test_candidate_ranking():
         "artists": ["Budman"],
     }
 
+    test3_metadata = {
+        "title": "I'm Spent (feat. Loe Shimmy)",
+        "artists": ["Drake", "Loe Shimmy"],
+    }
+
     fake_candidates = [
         {"title": "Blinding Lights cover karaoke", "url": "bad", "source": "youtube_music"},
         {"title": "Blinding Lights The Weeknd Official Audio", "url": "good", "source": "youtube_music"},
@@ -64,12 +69,18 @@ def test_candidate_ranking():
         {"title": "Budman - Completely Different Song Official Audio", "url": "bad", "source": "youtube_music"}
     ]
 
+    test3_candidates = [
+        {"title": "Drake & LOE Shimmy - I\u2019m Spent [Lyrics]", "url": "good", "source": "youtube_music"},
+    ]
+
     ranked_candidates = rank_candidates(fake_metadata, fake_candidates)
     scored_candidates = score_candidates(fake_metadata, fake_candidates)
 
     test_candidates_scored = score_candidates(test_metadata, test_candidates)
 
     test2_candidates_scored = score_candidates(test2_metadata, test2_candidates)
+
+    test3_candidates_scored = score_candidates(test3_metadata, test3_candidates)
 
     assert title_normalizer(test_candidates[0]["title"]) == "kendrick lamar love ft zacari"
     assert spotify_base_title(test_metadata["title"]) == "love"
@@ -101,6 +112,8 @@ def test_candidate_ranking():
     assert scored_candidates[0][1] >= 3
 
     print(scored_candidates)
+
+    assert test3_candidates_scored[0][1] >= 3
 
 def main():
     for case in test_cases:

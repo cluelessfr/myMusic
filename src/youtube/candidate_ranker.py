@@ -1,7 +1,17 @@
 import re
 
+APOSTROPHE_TABLE = str.maketrans({
+    "\u2018": "'",
+    "\u2019": "'",
+    "\u02bc": "'",
+    "\u02b9": "'",
+})
+
+
+
 def title_normalizer(title):
-    lower_title = title.lower()
+    translated_title = title.translate(APOSTROPHE_TABLE)
+    lower_title = translated_title.lower()
 
     replace_text = r'!|"|\#|\$|%|\&|\'|\(|\)|\*|\+|,|\-|\.|\/|:|;|<|=|>|\?|@|\[|\\|\]|\^|_|`|\{|\|\}|\~'
     punc_replaced = re.sub(replace_text, " ", lower_title)
@@ -29,6 +39,8 @@ def score_candidate(metadata, candidate):
     title = metadata['title']
     artists = metadata['artists']
     candidate_title = candidate['title']
+    metadata_explicit = metadata.get('explicit')
+    candidate_explicit = candidate.get('explicit')
 
     if candidate_title is None:
         candidate_title = ""
@@ -73,6 +85,12 @@ def score_candidate(metadata, candidate):
     for word in bad_words:
         if word not in lower_title:
             checked_words.append(word)
+
+    if (metadata_explicit is not None) and (candidate_explicit is not None):
+        if metadata_explicit == candidate_explicit:
+            score += 2
+        else:
+            score -= 4
 
     if normalized_title:
         if normalized_title in normalized_candidate:

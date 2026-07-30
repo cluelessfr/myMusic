@@ -280,7 +280,7 @@ def create_loopback_app(store: DownloadJobStore, show_window_event: Event) -> Fa
 class LoopbackServer:
     def __init__(self, store: DownloadJobStore, show_window_event: Event):
         self._app = create_loopback_app(store, show_window_event)
-        self._config = uvicorn.Config(app=self._app, host=HOST, port=PORT, log_level="warning", access_log=False, loop="asyncio", http="h11", ws="none", lifespan="off")
+        self._config = uvicorn.Config(app=self._app, host=HOST, port=PORT, log_level="warning", access_log=False, loop="asyncio", http="h11", ws="none", lifespan="off", log_config=None)
         self._server = uvicorn.Server(config=self._config)
         self._thread = Thread(daemon=True, target=self._server.run)
 

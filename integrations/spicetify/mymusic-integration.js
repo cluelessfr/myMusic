@@ -156,6 +156,44 @@
         observer.observe(document.body, {childList: true, subtree: true});
     }
 
+    function delay(milliseconds) {
+        return new Promise(resolve => setTimeout(resolve, milliseconds));
+    }
+
+    async function pollDownloadStatus(requestId) {
+        const deadline = Date.now() + 1800000;
+
+        while (Date.now() < deadline) {
+            await delay(2000);
+
+            const response = await fetch(`${API_BASE_URL}/downloads/${encodeURIComponent(requestId)}`);
+
+            if (!response.ok) {
+                throw new Error(`${response.status}`);
+            }
+
+            const json = await response.json();
+            const errorMessage = json.error ?? 'Unknown Error';
+
+            if (json.status === "queued" || json.status === "previewing" || json.status === "downloading") {
+                continue;
+            }
+            else if (json.status === "completed") {
+                Spicetify.showNotification(`Successfully downloaded ${json.successful_count} tracks`);
+                return;
+            }
+            else if (json.status === "failed") {
+                Spicetify.showNotification(`Failed to download ${json.failed_count} tracks: ${errorMessage}`, true);
+                return;
+            }
+            else {
+                throw new Error(`An unexpected error occurred: ${json.status}`);
+            }
+        }
+
+        Spicetify.showNotification('Status monitoring timed out', true);
+    }
+
     async function handleDownload(uris) {
         const selectedUri = uris[0];
 
@@ -170,6 +208,7 @@
             const requestId = json.request_id;
 
             Spicetify.showNotification(`Download queued: ${requestId}`);
+            await pollDownloadStatus(requestId);
         }
         catch (error) {
             console.error(`Request failed, myMusic integration unavailable: ${error}`);

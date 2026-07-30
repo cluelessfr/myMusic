@@ -1,6 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+from PyInstaller.utils.hooks import collect_data_files
+
+ytmusicapi_locale_files = collect_data_files("ytmusicapi", subdir="locales")
+
 a = Analysis(
     ['src\\gui\\app.py'],
     pathex=[],
@@ -10,7 +14,7 @@ a = Analysis(
         ('tools\\ffmpeg\\LICENSE', 'tools\\ffmpeg'),
         ('tools\\ffmpeg\\README.txt', 'tools\\ffmpeg'),
         ('tools\\deno\\bin\\deno.exe', 'tools\\deno\\bin'),
-    ],
+    ] + ytmusicapi_locale_files,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

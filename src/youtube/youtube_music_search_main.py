@@ -1,7 +1,10 @@
 from typing import Any, cast
 import urllib.parse
 import yt_dlp
+from ytmusicapi import YTMusic
 
+
+CLIENT = YTMusic()
 
 def search_text_strings(metadata):
     title = metadata["title"]
@@ -43,19 +46,19 @@ def search_youtube_music(search_url):
 def filter_youtube_music_candidates(search_results, limit=3):
     candidates = []
 
-    for entry in search_results.get("entries", []):
-        url = entry.get("url")
+    for entry in search_results:
+        video_id = entry.get("videoId")
 
-        if url is None:
-            continue
-
-        if "music.youtube.com/watch?v=" not in url:
+        if video_id is not None:
+            url = f"https://www.youtube.com/watch?v={video_id}"
+        else:
             continue
 
         candidate = {
             "title": entry.get("title"),
-            "url": entry.get("url"),
+            "url": url,
             "source": "youtube_music",
+            "explicit": entry.get("isExplicit"),
         }
 
         candidates.append(candidate)
@@ -68,8 +71,7 @@ def filter_youtube_music_candidates(search_results, limit=3):
 
 def get_youtube_music_candidates(metadata, limit=3):
     search_text = search_text_strings(metadata)
-    search_url = build_search_url(search_text[0])
-    search_results = search_youtube_music(search_url)
+    search_results = CLIENT.search(query=search_text[0], limit=limit, filter="songs")
     candidates = filter_youtube_music_candidates(search_results, limit)
 
     return candidates
