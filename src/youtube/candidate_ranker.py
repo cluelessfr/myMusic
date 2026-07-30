@@ -22,11 +22,13 @@ def title_normalizer(title):
 
 
 def spotify_base_title(input_title):
-    parenthesis_remove = r"\s*\((?:feat\.?|ft\.?|featuring)\s+[^)]*\)"
+    parenthesis_remove = r"\s*\((?:feat\.?|ft\.?|featuring\.?|with)\s+[^)]*\)"
     feat_titles = r"\s*(?:[;,-]\s*)?(?:feat\.?|ft\.?|featuring)\s+.*$"
+    from_titles = r"\s*(?:- from)\s+.*$"
     lower_input = input_title.lower()
     parenthesis_removed = re.sub(parenthesis_remove, "", lower_input)
-    feat_removed = re.sub(feat_titles, "", parenthesis_removed)
+    from_removed = re.sub(from_titles, "", parenthesis_removed)
+    feat_removed = re.sub(feat_titles, "", from_removed)
 
     feat_removed_title = " ".join(feat_removed.split())
 
@@ -51,6 +53,8 @@ def score_candidate(metadata, candidate):
     lower_title = title.lower()
     normalized_title = spotify_base_title(title)
     metadata_text = lower_title
+    base_title_matches = normalized_title and normalized_title in normalized_candidate
+    exact_title_matches = lower_candidate_title == lower_title
 
     for artist in artists:
         metadata_text += " " + artist.lower()
@@ -78,6 +82,7 @@ def score_candidate(metadata, candidate):
         "parody",
         "remix",
         "remaster",
+        "mix",
     ]
 
     checked_words = []
@@ -87,16 +92,16 @@ def score_candidate(metadata, candidate):
             checked_words.append(word)
 
     if (metadata_explicit is not None) and (candidate_explicit is not None):
-        if metadata_explicit == candidate_explicit:
+        if metadata_explicit == candidate_explicit and base_title_matches:
             score += 2
-        else:
+        elif metadata_explicit != candidate_explicit:
             score -= 4
 
     if normalized_title:
-        if normalized_title in normalized_candidate:
+        if base_title_matches:
             score += 1
 
-    if lower_candidate_title == lower_title:
+    if exact_title_matches:
         score += 1
         if candidate["source"] == "youtube_music":
             score += 2
