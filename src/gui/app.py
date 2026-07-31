@@ -1,30 +1,131 @@
 import customtkinter as ctk
+
+from src.integrations.loopback_client import forward_secondary_launch
 from src.workflows.download_workflow import download_song_from_spotify_link, preview_metadata
 from src.gui.settings import load_download_folder, save_download_folder
 from src.updater.update_checker import check_for_update
 from src.updater.installer_downloader import download_update_installer
 from src.updater.installer_runner import run_update_installer
-from src.integrations.parse_protocol_url import parse_protocol_arguments
+from src.integrations.parse_protocol_url import parse_protocol_arguments, is_background_launch, is_spicetify_install_launch, is_spicetify_uninstall_launch
+from src.integrations.spicetify_installer import install_spicetify_integration, uninstall_spicetify_integration
 from src.integrations.loopback_api import DownloadJob, DownloadJobStore, DownloadStatus, LoopbackServer
+from src.integrations.single_instance import SingleInstanceMutex
 from tkinter import filedialog
 from typing import Any
 from pathlib import Path
+from PIL import Image, ImageDraw
+import pystray
 import threading
 import sys
 
 
-app = ctk.CTk()
-app.title("myMusic")
-app.geometry("500x720")
-
-selected_output_folder = load_download_folder()
 loaded_tracks = []
+TRAY_EXIT_REQUESTS = None
+APP_SHUTTING_DOWN = False
+TRAY_ICON = None
+INSTANCE_MUTEX = None
 UPDATE_STATUS: dict[str, Any] | None = None
 UPDATE_CANCEL_EVENT: threading.Event | None = None
-STARTUP_SPOTIFY_URI = parse_protocol_arguments(sys.argv)
-STORE = DownloadJobStore()
-WINDOW_SHOW_REQUESTS = threading.Event()
-SERVER = LoopbackServer(STORE, WINDOW_SHOW_REQUESTS)
+
+
+def main() -> int:
+    global app, selected_output_folder, STARTUP_SPOTIFY_URI, STORE, WINDOW_SHOW_REQUESTS, SERVER, queue_label, track_list_frame, choose_folder_button, folder_label, status_label, progress_bar, path_label, preview_button, update_button, download_button, link_entry, TRAY_EXIT_REQUESTS, APP_SHUTTING_DOWN, TRAY_ICON, INSTANCE_MUTEX
+
+    if is_spicetify_install_launch(sys.argv):
+        install = install_spicetify_integration()
+
+        if install["ok"]:
+            return 0
+        else:
+            return 1
+
+    if is_spicetify_uninstall_launch(sys.argv):
+        uninstall = uninstall_spicetify_integration()
+
+        if uninstall["ok"]:
+            return 0
+        else:
+            return 1
+
+    STARTUP_SPOTIFY_URI = parse_protocol_arguments(sys.argv)
+    INSTANCE_MUTEX = SingleInstanceMutex()
+
+    if not INSTANCE_MUTEX.is_primary:
+        try:
+            if is_background_launch(sys.argv):
+                return 0
+
+            forwarding = forward_secondary_launch(STARTUP_SPOTIFY_URI)
+
+            if forwarding:
+                return 0
+
+            return 1
+        finally:
+            INSTANCE_MUTEX.close()
+
+    TRAY_EXIT_REQUESTS = threading.Event()
+    APP_SHUTTING_DOWN = False
+
+    app = ctk.CTk()
+    app.title("myMusic")
+    app.geometry("500x720")
+
+    if is_background_launch(sys.argv):
+        app.withdraw()
+
+    selected_output_folder = load_download_folder()
+    STORE = DownloadJobStore()
+    WINDOW_SHOW_REQUESTS = threading.Event()
+    SERVER = LoopbackServer(STORE, WINDOW_SHOW_REQUESTS)
+
+    link_entry = ctk.CTkEntry(app, placeholder_text="Paste Spotify Link")
+
+    if STARTUP_SPOTIFY_URI is not None:
+        link_entry.insert(0, STARTUP_SPOTIFY_URI)
+
+    queue_label = ctk.CTkLabel(app, text="Queue: 0 tracks", font=ctk.CTkFont(size=14, weight="bold"))
+    track_list_frame = ctk.CTkScrollableFrame(app, width=450, height=170)
+    choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_download_folder)
+    folder_label = ctk.CTkLabel(app, text=f"Save to: {selected_output_folder}", wraplength=440)
+    status_label = ctk.CTkLabel(app, text="")
+    progress_bar = ctk.CTkProgressBar(app, orientation="horizontal", width=450, height=20, corner_radius=5)
+    progress_bar.set(0)
+    path_label = ctk.CTkLabel(app, text="", wraplength=440)
+    preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
+    update_button = ctk.CTkButton(app, text="Check For App Updates", command=start_update_check)
+    download_button = ctk.CTkButton(app, text="Download Song", command=start_download)
+
+    link_entry.pack(padx=20, pady=20, fill="x")
+    preview_button.pack(pady=10)
+    queue_label.pack(pady=10, padx=20)
+    track_list_frame.pack(pady=10, padx=20, fill="x", anchor="w")
+    choose_folder_button.pack(pady=5)
+    folder_label.pack(pady=5)
+    download_button.pack(pady=10)
+    status_label.pack(pady=10)
+    progress_bar.pack(pady=10)
+    path_label.pack(pady=10)
+    update_button.pack(pady=10)
+
+    app.protocol("WM_DELETE_WINDOW", hide_app)
+
+    try:
+        SERVER.start()
+        app.after(100, poll_loopback_requests)
+    except RuntimeError:
+        status_label.configure(text="Spotify Integration Unavailable")
+        path_label.configure(text="Spotify Integration Unavailable")
+
+    if STARTUP_SPOTIFY_URI:
+        # noinspection PyTypeChecker
+        app.after(0, start_preview, start_download)
+
+    start_tray_icon()
+
+    app.mainloop()
+
+    return 0
 
 
 def choose_download_folder():
@@ -384,6 +485,12 @@ def start_remote_download(job: DownloadJob):
 
 
 def poll_loopback_requests():
+    if TRAY_EXIT_REQUESTS:
+        if TRAY_EXIT_REQUESTS.is_set():
+            TRAY_EXIT_REQUESTS.clear()
+            shutdown_app()
+            return
+
     try:
         if WINDOW_SHOW_REQUESTS.is_set():
             WINDOW_SHOW_REQUESTS.clear()
@@ -397,52 +504,73 @@ def poll_loopback_requests():
                 start_remote_download(job)
 
     finally:
-        app.after(100, poll_loopback_requests)
+        if not APP_SHUTTING_DOWN:
+            app.after(100, poll_loopback_requests)
+
+
+def build_tray_image():
+    image = Image.new("RGBA", size=(64, 64), color=(0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+
+    square_box = [4, 4, 60, 60]
+    draw.rounded_rectangle(square_box, radius=12, fill=(40, 40, 40, 255))
+
+    rect_box = [28, 16, 36, 36]
+    draw.rectangle(rect_box, fill=(240, 240, 240, 255))
+
+    arrow_vertices = [
+        (18, 34),
+        (46, 34),
+        (32, 48),
+    ]
+    draw.polygon(arrow_vertices, fill=(240, 240, 240, 255))
+
+    return image
+
+
+def request_tray_open(tray_icon, menu_item):
+    WINDOW_SHOW_REQUESTS.set()
+
+
+def start_tray_icon():
+    global TRAY_ICON
+    image = build_tray_image()
+    menu = pystray.Menu(
+        pystray.MenuItem("Open myMusic", request_tray_open, default=True),
+        pystray.MenuItem("Exit myMusic", request_tray_exit),
+    )
+
+    TRAY_ICON = pystray.Icon(name="mymusic", icon=image, title="myMusic", menu=menu)
+
+    TRAY_ICON.run_detached()
 
 
 def shutdown_app():
+    global APP_SHUTTING_DOWN
+
+    if APP_SHUTTING_DOWN:
+        return
+    else:
+        APP_SHUTTING_DOWN = True
+
+    if TRAY_ICON:
+        TRAY_ICON.stop()
+
     SERVER.stop()
+
+    if INSTANCE_MUTEX is not None:
+        INSTANCE_MUTEX.close()
+
     app.destroy()
 
 
-link_entry = ctk.CTkEntry(app, placeholder_text="Paste Spotify Link")
-if STARTUP_SPOTIFY_URI is not None:
-    link_entry.insert(0, STARTUP_SPOTIFY_URI)
-queue_label = ctk.CTkLabel(app, text="Queue: 0 tracks", font=ctk.CTkFont(size=14, weight="bold"))
-track_list_frame = ctk.CTkScrollableFrame(app, width=450, height=170)
-choose_folder_button = ctk.CTkButton(app, text="Choose Folder", command=choose_download_folder)
-folder_label = ctk.CTkLabel(app, text=f"Save to: {selected_output_folder}", wraplength=440)
-status_label = ctk.CTkLabel(app, text="")
-progress_bar = ctk.CTkProgressBar(app, orientation="horizontal", width=450, height=20, corner_radius=5)
-progress_bar.set(0)
-path_label = ctk.CTkLabel(app, text="", wraplength=440)
-preview_button = ctk.CTkButton(app, text="Preview Song Details", command=start_preview)
-update_button = ctk.CTkButton(app, text="Check For App Updates", command=start_update_check)
-download_button = ctk.CTkButton(app, text="Download Song", command=start_download)
+def hide_app():
+    app.withdraw()
 
-link_entry.pack(padx=20, pady=20, fill="x")
-preview_button.pack(pady=10)
-queue_label.pack(pady=10, padx=20)
-track_list_frame.pack(pady=10, padx=20, fill="x", anchor="w")
-choose_folder_button.pack(pady=5)
-folder_label.pack(pady=5)
-download_button.pack(pady=10)
-status_label.pack(pady=10)
-progress_bar.pack(pady=10)
-path_label.pack(pady=10)
-update_button.pack(pady=10)
 
-app.protocol("WM_DELETE_WINDOW", shutdown_app)
+def request_tray_exit(tray_icon, menu_item):
+    TRAY_EXIT_REQUESTS.set()
 
-try:
-    SERVER.start()
-    app.after(100, poll_loopback_requests)
-except RuntimeError:
-    status_label.configure(text="Spotify Integration Unavailable")
-    path_label.configure(text="Spotify Integration Unavailable")
 
-if STARTUP_SPOTIFY_URI:
-    # noinspection PyTypeChecker
-    app.after(0, start_preview, start_download)
-
-app.mainloop()
+if __name__ == "__main__":
+    sys.exit(main())

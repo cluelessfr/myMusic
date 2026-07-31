@@ -1,0 +1,5 @@
+Spicetify is required ONLY for Spotify integration.
+If it is detected myMusic automatically installs its extension.
+Existing themes, extensions, Marketplace, and custom apps are preserved.
+Without Spicetify, myMusic still works as a standalone application.
+Official installation instructions: https://spicetify.app/docs/getting-started

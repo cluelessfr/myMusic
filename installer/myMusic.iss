@@ -1,5 +1,5 @@
 #define MyAppName "myMusic"
-#define MyAppVersion "1.4.1"
+#define MyAppVersion "2.0.0"
 #define MyAppExeName "myMusic.exe"
 
 [Setup]
@@ -20,6 +20,7 @@ CloseApplicationsFilter=*.exe,*.dll
 WizardStyle=modern
 PrivilegesRequired=lowest
 UninstallDisplayIcon={app}\{#MyAppExeName}
+InfoBeforeFile=spicetify-prerequisite.txt
 
 [Files]
 Source: "..\dist\myMusic\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -30,6 +31,7 @@ Type: filesandordirs; Name: "{localappdata}\{#MyAppName}"
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional icons:"; Flags: unchecked
+Name: "startup"; Description: "Start myMusic with Windows"; GroupDescription: "Startup:"
 
 [Icons]
 Name: "{group}\myMusic"; Filename: "{app}\{#MyAppExeName}"
@@ -41,7 +43,13 @@ Root: HKCU; Subkey: Software\Classes\mymusic; ValueType: string; ValueName: ""; 
 Root: HKCU; Subkey: Software\Classes\mymusic; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
 Root: HKCU; Subkey: Software\Classes\mymusic\DefaultIcon; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
 Root: HKCU; Subkey: Software\Classes\mymusic\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: "myMusic"; ValueData: """{app}\{#MyAppExeName}"" --background"; Flags: uninsdeletevalue; Tasks: startup
+Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: "myMusic"; Flags: deletevalue; Tasks: not startup
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Flags: nowait runasoriginaluser skipifnotsilent
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--install-spicetify";  StatusMsg: "Installing Spotify integration..."; Flags: runhidden waituntilterminated runasoriginaluser
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--background"; Flags: nowait runasoriginaluser skipifnotsilent
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch myMusic"; Flags: nowait postinstall runasoriginaluser skipifsilent
+
+[UninstallRun]
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--uninstall-spicetify"; Flags: runhidden waituntilterminated skipifdoesntexist; RunOnceId: "RemoveMyMusicSpicetifyIntegration"

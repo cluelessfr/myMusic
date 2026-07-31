@@ -53,3 +53,33 @@ def parse_protocol_arguments(arguments):
             return parsed_url
 
     return None
+
+
+def is_background_launch(arguments_list):
+    if not isinstance(arguments_list, (list, tuple)):
+        return False
+
+    if "--background" in arguments_list[1:]:
+        return True
+
+    return False
+
+
+def is_spicetify_install_launch(arguments_list):
+    if not isinstance(arguments_list, (list, tuple)):
+        return False
+
+    if "--install-spicetify" in arguments_list[1:]:
+        return True
+
+    return False
+
+
+def is_spicetify_uninstall_launch(arguments_list):
+    if not isinstance(arguments_list, (list, tuple)):
+        return False
+
+    if "--uninstall-spicetify" in arguments_list[1:]:
+        return True
+
+    return False
