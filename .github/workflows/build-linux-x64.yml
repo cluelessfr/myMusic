@@ -9,10 +9,10 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -86,7 +86,7 @@ jobs:
           sha256sum "myMusic-v${APP_VERSION}-linux-x64.tar.gz"
 
       - name: Upload Linux x64 artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "myMusic-v${{ env.APP_VERSION }}-linux-x64"
           path: "myMusic-v${{ env.APP_VERSION }}-linux-x64.tar.gz"
