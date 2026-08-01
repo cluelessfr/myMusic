@@ -73,6 +73,19 @@ def test_candidate_ranking():
         {"title": "Drake & LOE Shimmy - I\u2019m Spent [Lyrics]", "url": "good", "source": "youtube_music"},
     ]
 
+    soundtrack_metadata = {
+        "title": "Self Love (Spider-Man: Across the Spider-Verse) (Metro Boomin & Coi Leray)",
+        "artists": ["Metro Boomin", "Coi Leray"],
+        "explicit": False,
+    }
+
+    soundtrack_candidates = [{
+        "title": "Self Love (Spider-Man: Across the Spider-Verse)",
+        "url": "good",
+        "source": "youtube_music",
+        "explicit": False,
+    }]
+
     ranked_candidates = rank_candidates(fake_metadata, fake_candidates)
     scored_candidates = score_candidates(fake_metadata, fake_candidates)
 
@@ -81,6 +94,7 @@ def test_candidate_ranking():
     test2_candidates_scored = score_candidates(test2_metadata, test2_candidates)
 
     test3_candidates_scored = score_candidates(test3_metadata, test3_candidates)
+    soundtrack_candidates_scored = score_candidates(soundtrack_metadata, soundtrack_candidates)
 
     assert title_normalizer(test_candidates[0]["title"]) == "kendrick lamar love ft zacari"
     assert spotify_base_title(test_metadata["title"]) == "love"
@@ -114,6 +128,7 @@ def test_candidate_ranking():
     print(scored_candidates)
 
     assert test3_candidates_scored[0][1] >= 3
+    assert soundtrack_candidates_scored[0][1] >= 3
 
 def main():
     for case in test_cases:

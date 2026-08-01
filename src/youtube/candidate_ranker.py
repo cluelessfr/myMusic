@@ -21,6 +21,20 @@ def title_normalizer(title):
     return normalized_title
 
 
+def remove_redundant_artist_suffix(title, artists):
+    if not artists:
+        return title
+
+    match = re.search(r"\s*\(([^()]*)\)\s*$", title)
+    if match is None:
+        return title
+
+    if title_normalizer(match.group(1)) != title_normalizer(" ".join(artists)):
+        return title
+
+    return title[:match.start()].rstrip()
+
+
 def spotify_base_title(input_title):
     parenthesis_remove = r"\s*\((?:feat\.?|ft\.?|featuring\.?|with)\s+[^)]*\)"
     feat_titles = r"\s*(?:[;,-]\s*)?(?:feat\.?|ft\.?|featuring)\s+.*$"
@@ -51,7 +65,7 @@ def score_candidate(metadata, candidate):
     lower_candidate_title = candidate_title.lower()
     normalized_candidate = title_normalizer(candidate_title)
     lower_title = title.lower()
-    normalized_title = spotify_base_title(title)
+    normalized_title = spotify_base_title(remove_redundant_artist_suffix(title, artists))
     metadata_text = lower_title
     base_title_matches = normalized_title and normalized_title in normalized_candidate
     exact_title_matches = lower_candidate_title == lower_title
