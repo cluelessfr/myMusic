@@ -1,5 +1,12 @@
-Spicetify is required ONLY for Spotify integration.
-If it is detected myMusic automatically installs its extension.
-Existing themes, extensions, Marketplace, and custom apps are preserved.
+Spotify integration is optional and available only on Windows.
+
+Spicetify must already be installed if you want to use myMusic from Spotify's right-click menus. myMusic does not install Spicetify.
+
+If Spicetify is detected, Setup installs and enables only the myMusic extension. Existing themes, extensions, Marketplace, and custom apps are preserved.
+
 Without Spicetify, myMusic still works as a standalone application.
-Official installation instructions: https://spicetify.app/docs/getting-started
+
+Spicetify is a separate project licensed under LGPL-2.1. myMusic does not bundle or modify Spicetify and is not affiliated with or endorsed by Spicetify or Spotify. Setup includes the applicable third-party notice and a copy of the Spicetify license.
+
+Official Spicetify installation instructions:
+https://spicetify.app/docs/getting-started

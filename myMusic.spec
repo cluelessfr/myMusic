@@ -15,6 +15,8 @@ a = Analysis(
         ('tools\\ffmpeg\\README.txt', 'tools\\ffmpeg'),
         ('tools\\deno\\bin\\deno.exe', 'tools\\deno\\bin'),
         ('integrations\\spicetify\\mymusic-integration.js', 'integrations\\spicetify'),
+        ('THIRD_PARTY_NOTICES.md', '.'),
+        ('licenses\\Spicetify-LGPL-2.1.txt', 'licenses'),
     ] + ytmusicapi_locale_files,
     hiddenimports=[],
     hookspath=[],

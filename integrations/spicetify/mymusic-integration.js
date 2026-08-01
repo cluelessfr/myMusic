@@ -1,3 +1,11 @@
+/*
+ * myMusic Spicetify integration
+ * Copyright (c) 2026 Taran Prabhu
+ * SPDX-License-Identifier: MIT
+ *
+ * Independently authored using Spicetify's documented extension API.
+ * Spicetify is a separate LGPL-2.1 project and is not bundled here.
+ */
 (() => {
     let activeCollectionUri = null;
     const API_BASE_URL = "http://127.0.0.1:18492/v1";

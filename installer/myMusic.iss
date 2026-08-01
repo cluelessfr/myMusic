@@ -21,9 +21,13 @@ WizardStyle=modern
 PrivilegesRequired=lowest
 UninstallDisplayIcon={app}\{#MyAppExeName}
 InfoBeforeFile=spicetify-prerequisite.txt
+InfoAfterFile=..\THIRD_PARTY_NOTICES.md
 
 [Files]
 Source: "..\dist\myMusic\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\licenses\Spicetify-LGPL-2.1.txt"; DestDir: "{app}\licenses"; Flags: ignoreversion
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
