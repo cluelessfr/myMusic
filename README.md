@@ -14,9 +14,9 @@ myMusic is provided for educational purposes only. Use it only to download conte
 
 | Platform | Status | Download |
 | --- | --- | --- |
-| Windows | Supported | `myMusic-v2.0.0-windows-setup.exe` from GitHub Releases |
-| Linux x64 | Experimental | `myMusic-v2.0.0-linux-x64.tar.gz` from GitHub Releases |
-| Linux ARM64 | Experimental | `myMusic-v2.0.0-linux-arm64.tar.gz` from GitHub Releases |
+| Windows | Supported | `myMusic-v2.0.1-windows-setup.exe` from GitHub Releases |
+| Linux x64 | Experimental | `myMusic-v2.0.1-linux-x64.tar.gz` from GitHub Releases |
+| Linux ARM64 | Experimental | `myMusic-v2.0.1-linux-arm64.tar.gz` from GitHub Releases |
 | macOS | Not supported yet | N/A |
 
 ## Download And Install
@@ -29,7 +29,7 @@ You do not need to install Python, project dependencies, FFmpeg, Deno, or develo
 
 The recommended Windows download is the installer.
 
-1. Download `myMusic-v2.0.0-windows-setup.exe`.
+1. Download `myMusic-v2.0.1-windows-setup.exe`.
 2. Open the downloaded installer.
 3. Follow the setup steps.
 4. Launch myMusic from the installer, Start Menu, or desktop shortcut if you selected one.
@@ -42,7 +42,7 @@ Windows Spotify integration is optional and requires Spicetify to be installed b
 
 The Linux x64 build is experimental. It is for typical Intel and AMD Linux PCs, not Raspberry Pi or other ARM64 devices.
 
-1. Download `myMusic-v2.0.0-linux-x64.tar.gz`.
+1. Download `myMusic-v2.0.1-linux-x64.tar.gz`.
 2. Extract the downloaded archive.
 3. Open the extracted `myMusic` folder.
 4. Run the `myMusic` executable inside that folder.
@@ -50,7 +50,7 @@ The Linux x64 build is experimental. It is for typical Intel and AMD Linux PCs, 
 From a terminal, you can run:
 
 ```text
-tar -xzf myMusic-v2.0.0-linux-x64.tar.gz
+tar -xzf myMusic-v2.0.1-linux-x64.tar.gz
 cd myMusic
 ./myMusic
 ```
@@ -59,7 +59,7 @@ cd myMusic
 
 The Linux ARM64 build is experimental. It is intended for ARM64 Linux devices such as a 64-bit Raspberry Pi, not typical Intel or AMD Linux PCs.
 
-1. Download `myMusic-v2.0.0-linux-arm64.tar.gz`.
+1. Download `myMusic-v2.0.1-linux-arm64.tar.gz`.
 2. Extract the downloaded archive.
 3. Open the extracted `myMusic` folder.
 4. Run the `myMusic` executable inside that folder.
@@ -67,12 +67,12 @@ The Linux ARM64 build is experimental. It is intended for ARM64 Linux devices su
 From a terminal, you can run:
 
 ```text
-tar -xzf myMusic-v2.0.0-linux-arm64.tar.gz
+tar -xzf myMusic-v2.0.1-linux-arm64.tar.gz
 cd myMusic
 ./myMusic
 ```
 
-The experimental Linux builds provide the standalone myMusic interface. Spotify right-click integration, background startup, and the system tray are Windows-only in v2.0.0. Closing the Linux window exits the application.
+The experimental Linux builds provide the standalone myMusic interface. Spotify right-click integration, background startup, and the system tray are Windows-only in v2.0.1. Closing the Linux window exits the application.
 
 ## Windows SmartScreen
 
@@ -97,7 +97,7 @@ To continue:
 
 ## Spotify Integration (Windows)
 
-myMusic v2.0.0 can add download actions directly to the Windows Spotify desktop app through Spicetify.
+myMusic v2.0.1 can add download actions directly to the Windows Spotify desktop app through Spicetify.
 
 ### Requirements
 
