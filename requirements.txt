@@ -8,6 +8,6 @@ PyInstaller
 fastapi
 uvicorn
 httpx
-pystray
+pystray; sys_platform == "win32"
 pydantic
 ytmusicapi

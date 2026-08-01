@@ -1,22 +1,25 @@
+import sys
 import customtkinter as ctk
-
 from src.integrations.loopback_client import forward_secondary_launch
 from src.workflows.download_workflow import download_song_from_spotify_link, preview_metadata
 from src.gui.settings import load_download_folder, save_download_folder
 from src.updater.update_checker import check_for_update
 from src.updater.installer_downloader import download_update_installer
 from src.updater.installer_runner import run_update_installer
-from src.integrations.parse_protocol_url import parse_protocol_arguments, is_background_launch, is_spicetify_install_launch, is_spicetify_uninstall_launch
-from src.integrations.spicetify_installer import install_spicetify_integration, uninstall_spicetify_integration
-from src.integrations.loopback_api import DownloadJob, DownloadJobStore, DownloadStatus, LoopbackServer
 from src.integrations.single_instance import SingleInstanceMutex
+from src.integrations.parse_protocol_url import parse_protocol_arguments, is_background_launch
+from src.integrations.parse_protocol_url import is_spicetify_install_launch, is_spicetify_uninstall_launch
+from src.integrations.loopback_api import DownloadJob, DownloadJobStore, DownloadStatus, LoopbackServer
 from tkinter import filedialog
 from typing import Any
 from pathlib import Path
-from PIL import Image, ImageDraw
-import pystray
 import threading
-import sys
+
+
+if sys.platform.startswith('win'):
+    from PIL import Image, ImageDraw
+    import pystray
+    from src.integrations.spicetify_installer import install_spicetify_integration, uninstall_spicetify_integration
 
 
 loaded_tracks = []
@@ -31,28 +34,38 @@ UPDATE_CANCEL_EVENT: threading.Event | None = None
 def main() -> int:
     global app, selected_output_folder, STARTUP_SPOTIFY_URI, STORE, WINDOW_SHOW_REQUESTS, SERVER, queue_label, track_list_frame, choose_folder_button, folder_label, status_label, progress_bar, path_label, preview_button, update_button, download_button, link_entry, TRAY_EXIT_REQUESTS, APP_SHUTTING_DOWN, TRAY_ICON, INSTANCE_MUTEX
 
-    if is_spicetify_install_launch(sys.argv):
-        install = install_spicetify_integration()
+    is_windows = sys.platform.startswith('win')
+    is_linux = sys.platform.startswith('linux')
+    background_launch = is_background_launch(sys.argv) and is_windows
 
-        if install["ok"]:
-            return 0
-        else:
+    if is_spicetify_install_launch(sys.argv):
+        if is_windows:
+            install = install_spicetify_integration()
+
+            if install["ok"]:
+                return 0
+            else:
+                return 1
+        elif is_linux:
             return 1
 
     if is_spicetify_uninstall_launch(sys.argv):
-        uninstall = uninstall_spicetify_integration()
+        if is_windows:
+            uninstall = uninstall_spicetify_integration()
 
-        if uninstall["ok"]:
+            if uninstall["ok"]:
+                return 0
+            else:
+                return 1
+        elif is_linux:
             return 0
-        else:
-            return 1
 
     STARTUP_SPOTIFY_URI = parse_protocol_arguments(sys.argv)
     INSTANCE_MUTEX = SingleInstanceMutex()
 
     if not INSTANCE_MUTEX.is_primary:
         try:
-            if is_background_launch(sys.argv):
+            if background_launch:
                 return 0
 
             forwarding = forward_secondary_launch(STARTUP_SPOTIFY_URI)
@@ -71,7 +84,7 @@ def main() -> int:
     app.title("myMusic")
     app.geometry("500x720")
 
-    if is_background_launch(sys.argv):
+    if background_launch:
         app.withdraw()
 
     selected_output_folder = load_download_folder()
@@ -108,7 +121,10 @@ def main() -> int:
     path_label.pack(pady=10)
     update_button.pack(pady=10)
 
-    app.protocol("WM_DELETE_WINDOW", hide_app)
+    if is_windows:
+        app.protocol("WM_DELETE_WINDOW", hide_app)
+    elif is_linux:
+        app.protocol("WM_DELETE_WINDOW", shutdown_app)
 
     try:
         SERVER.start()
@@ -121,7 +137,8 @@ def main() -> int:
         # noinspection PyTypeChecker
         app.after(0, start_preview, start_download)
 
-    start_tray_icon()
+    if is_windows:
+        start_tray_icon()
 
     app.mainloop()
 

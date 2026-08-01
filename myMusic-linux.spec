@@ -1,6 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+from PyInstaller.utils.hooks import collect_data_files
+
+ytmusicapi_locale_files = collect_data_files("ytmusicapi", subdir="locales")
+
 a = Analysis(
     ['src/gui/app.py'],
     pathex=[],
@@ -9,12 +13,12 @@ a = Analysis(
         ('tools/ffmpeg/bin/ffmpeg', 'tools/ffmpeg/bin'),
         ('tools/ffmpeg/LICENSE', 'tools/ffmpeg'),
         ('tools/deno/bin/deno', 'tools/deno/bin'),
-    ],
+    ] + ytmusicapi_locale_files,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=["pystray", "src.integrations.spicetify_installer"],
     noarchive=False,
     optimize=0,
 )
